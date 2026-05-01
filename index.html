@@ -490,6 +490,100 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
 .lara-send{width:34px;height:34px;border-radius:9px;background:var(--violet);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .lara-send:hover{background:var(--vl);}
 .lara-send svg{width:14px;height:14px;}
+
+/* ════════════════════════════════════════════════
+   RESPONSIVE — MOBILE
+════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .site-nav{padding:0 16px;height:56px;}
+  .nav-links{display:none;}
+  .nav-cta{font-size:12px;padding:8px 14px;}
+  .nav-logo-text{font-size:20px;}
+  .hero{grid-template-columns:1fr;padding:32px 20px 24px;min-height:auto;}
+  .hero-right{display:none;}
+  .hero-left{padding:0;}
+  .hero-title{font-size:36px;margin-bottom:12px;}
+  .hero-desc{font-size:13px;margin-bottom:20px;}
+  .hero-btns{flex-direction:column;gap:10px;}
+  .btn-hero-primary,.btn-hero-secondary{width:100%;justify-content:center;text-align:center;}
+  .plan-section{padding:40px 20px;}
+  .plan-header-row{flex-direction:column;align-items:flex-start;gap:16px;}
+  .plan-price-big{text-align:left;}
+  .plan-price-num{font-size:48px;}
+  .plan-title{font-size:38px;}
+  .plan-features-grid{grid-template-columns:1fr 1fr;gap:10px;}
+  .plan-feat{padding:10px 12px;}
+  .plan-feat-text{font-size:12px;}
+  .plan-cta-row{flex-direction:column;align-items:flex-start;gap:10px;}
+  .btn-subscribe,.btn-customize{width:100%;text-align:center;justify-content:center;}
+  .plan-note{margin-left:0;}
+  .cotizador-section{padding:40px 20px;}
+  .cot-grid{grid-template-columns:1fr;gap:20px;}
+  .cot-summary{position:static;top:auto;}
+  .section-title{font-size:32px;}
+  .modulos-section{padding:40px 20px;}
+  .modulos-grid{grid-template-columns:1fr;}
+  .modulos-title{font-size:22px;}
+  .beneficios-section{padding:40px 20px;}
+  .beneficios-grid{grid-template-columns:1fr 1fr;gap:14px;}
+  .beneficios-title{font-size:22px;}
+  .beneficio-card{padding:20px 16px;}
+  .logos-section{padding:24px 20px;}
+  .logos-strip{gap:12px;}
+  .atencion-section{padding:40px 20px;}
+  .atencion-inner{grid-template-columns:1fr;gap:32px;}
+  .aten-title{font-size:26px;}
+  .aten-form-card{padding:22px 18px;}
+  .faq-section{padding:40px 20px;}
+  .faq-title{font-size:28px;}
+  .faq-q{font-size:14px;}
+  .cta-section{padding:48px 20px;}
+  .cta-title{font-size:32px;}
+  .cta-btns{flex-direction:column;align-items:center;}
+  .btn-cta-orange,.btn-cta-outline{width:100%;max-width:320px;}
+  .site-footer{padding:32px 20px 20px;}
+  .footer-top{grid-template-columns:1fr;gap:24px;}
+  .footer-bottom{flex-direction:column;gap:8px;text-align:center;}
+  .steps-bar{height:44px;}
+  .step-item{padding:0 8px;font-size:9px;gap:5px;}
+  .step-num{width:18px;height:18px;font-size:9px;}
+  .step-item::after{margin-left:4px;font-size:10px;}
+  #step1.active{grid-template-columns:1fr;min-height:auto;display:flex;flex-direction:column;}
+  .s1-left{padding:24px 20px 20px;order:1;}
+  .s1-form-title{font-size:38px;}
+  .s1-grid{grid-template-columns:1fr;gap:10px;}
+  .s1-scroll-hint{display:flex!important;}
+  .s1-right{padding:28px 20px 36px;min-height:auto;order:2;}
+  .s1-calc-title{font-size:26px;}
+  .s1-logo{font-size:22px;margin-bottom:16px;}
+  .s1-plan-base{flex-direction:column;gap:6px;align-items:flex-start;}
+  .s1-plan-base-price{font-size:20px;}
+  .s1-total-val{font-size:30px;}
+  .s1-keep-shopping{margin-top:12px;}
+  .btn-s1-continue{margin-top:16px;}
+  .checkout-container{padding:24px 16px;}
+  .redirect-card{padding:36px 24px;margin:16px;}
+  .success-card{padding:32px 20px;margin:16px;}
+  .success-title{font-size:30px;}
+  .modal-box{width:95vw;max-height:90vh;}
+  .lara-bubble{bottom:16px;right:16px;}
+  .lara-window{bottom:80px;right:8px;width:calc(100vw - 16px);max-width:360px;}
+  .lara-notification{max-width:220px;}
+  .addon-row{flex-wrap:wrap;gap:10px;}
+  .addon-right{width:100%;flex-direction:row;justify-content:space-between;align-items:center;}
+  .aten-right>div:first-child{grid-template-columns:1fr!important;}
+  .af-row{grid-template-columns:1fr;}
+}
+
+@media (max-width: 480px) {
+  .hero-title{font-size:28px;}
+  .plan-features-grid{grid-template-columns:1fr;}
+  .beneficios-grid{grid-template-columns:1fr;}
+  .plan-title{font-size:30px;}
+  .s1-form-title{font-size:30px;}
+  .cta-title{font-size:26px;}
+}
+
 </style>
 </head>
 <body>
@@ -866,6 +960,17 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
 <div id="step1" class="screen">
 <style>
 #step1.active{display:grid;grid-template-columns:1fr 1fr;min-height:100vh;padding-top:52px;}
+@media(max-width:768px){
+  #step1.active{display:flex!important;flex-direction:column!important;grid-template-columns:unset!important;}
+  .s1-left{order:1;padding:72px 20px 24px!important;}
+  .s1-right{order:2;padding:28px 20px 36px!important;}
+  .s1-grid{grid-template-columns:1fr!important;}
+  .s1-form-title{font-size:36px!important;}
+  .s1-scroll-hint{display:block!important;}
+  .s1-plan-base{flex-direction:column!important;align-items:flex-start!important;}
+  .s1-total-val{font-size:28px!important;}
+  .s1-calc-title{font-size:24px!important;}
+}
 .s1-left{padding:48px 52px 48px 64px;display:flex;flex-direction:column;justify-content:center;background:var(--off-white);}
 .s1-right{background:#0D0D0D;padding:48px 40px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;}
 .s1-right::before{content:'';position:absolute;top:-80px;right:-80px;width:280px;height:280px;border-radius:50%;background:rgba(59,47,217,.12);}
@@ -916,6 +1021,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
 .s1-badge{font-size:11px;color:rgba(255,255,255,.55);display:flex;align-items:center;gap:6px;}
 .s1-keep-shopping{width:100%;margin-top:16px;background:transparent;border:1.5px solid rgba(255,255,255,.2);border-radius:10px;padding:12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:rgba(255,255,255,.6);cursor:pointer;transition:border-color .2s,color .2s;}
 .s1-keep-shopping:hover{border-color:var(--orange);color:var(--orange);}
+/* Scroll hint — oculto en desktop, visible en mobile via media query */
+.s1-scroll-hint{display:none;width:100%;margin-top:14px;background:rgba(59,47,217,.1);border:1.5px solid rgba(59,47,217,.4);border-radius:10px;padding:12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--violet);cursor:pointer;text-align:center;animation:pulseHint 2s ease-in-out infinite;}
+@keyframes pulseHint{0%,100%{opacity:1;}50%{opacity:.6;}}
 .s1-sum-item{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 14px;margin-bottom:8px;}
 .s1-sum-item-name{font-size:13px;font-weight:700;color:#fff;}
 .s1-sum-item-sub{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px;}
@@ -952,6 +1060,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
       <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
     <button class="btn-s1-home" onclick="restart()">← Volver a la página principal</button>
+
+    <!-- Solo visible en mobile — hint para bajar a ver la cotización -->
+    <button class="s1-scroll-hint" onclick="document.querySelector('.s1-right').scrollIntoView({behavior:'smooth'})">
+      Ver tu cotización ↓
+    </button>
   </div>
 
 
