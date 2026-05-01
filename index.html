@@ -1261,7 +1261,31 @@ function seguiComprando(){
   },300);
 }
 
-function goToStep(n){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('stepRedirect').classList.remove('active');document.getElementById('step'+n).classList.add('active');if(n>=1){const notif=document.getElementById('laraNotif');if(notif)notif.style.display='none';}const bar=document.getElementById('stepsBar');if(n===0){bar.classList.add('hidden');}else{bar.classList.remove('hidden');['si1','si2','si3'].forEach((id,i)=>{const el=document.getElementById(id);el.classList.remove('active','done');if(i+1<n)el.classList.add('done');else if(i+1===n)el.classList.add('active');});}window.scrollTo({top:0,behavior:'smooth'});}
+function goToStep(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('stepRedirect').classList.remove('active');
+  document.getElementById('step'+n).classList.add('active');
+  if(n>=1){const notif=document.getElementById('laraNotif');if(notif)notif.style.display='none';}
+  const bar=document.getElementById('stepsBar');
+  if(n===0){bar.classList.add('hidden');}
+  else{
+    bar.classList.remove('hidden');
+    ['si1','si2','si3'].forEach((id,i)=>{
+      const el=document.getElementById(id);
+      el.classList.remove('active','done');
+      if(i+1<n)el.classList.add('done');
+      else if(i+1===n)el.classList.add('active');
+    });
+  }
+  // Forzar scroll al top con doble requestAnimationFrame para esperar el render
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      window.scrollTo({top:0,left:0,behavior:'instant'});
+      document.documentElement.scrollTop=0;
+      document.body.scrollTop=0;
+    });
+  });
+}
 
 function initPayment(gateway){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));const rScreen=document.getElementById('stepRedirect');rScreen.classList.add('active');document.getElementById('stepsBar').classList.remove('hidden');['si1','si2','si3'].forEach((id,i)=>{const el=document.getElementById(id);el.classList.remove('active','done');if(i<1)el.classList.add('done');else if(i===1)el.classList.add('active');});window.scrollTo({top:0,behavior:'smooth'});const isPaypal=gateway==='paypal';document.getElementById('rGatewayLogo').textContent=isPaypal?'🟡':'🔵';document.getElementById('rTitle1').textContent=isPaypal?'Redirigiendo a PayPal...':'Redirigiendo a MercadoPago...';document.getElementById('rSub2').textContent=isPaypal?'Tu pago con PayPal fue aprobado.':'Tu pago con MercadoPago fue aprobado.';document.getElementById('rPhase1').style.display='block';document.getElementById('rPhase2').style.display='none';setTimeout(()=>{document.getElementById('rPhase1').style.display='none';document.getElementById('rPhase2').style.display='block';setTimeout(()=>{document.getElementById('rProgressFill').style.width='100%';},80);setTimeout(()=>{document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));rScreen.classList.remove('active');document.getElementById('step3').classList.add('active');['si1','si2','si3'].forEach((id,i)=>{const el=document.getElementById(id);el.classList.remove('active','done');if(i<2)el.classList.add('done');else el.classList.add('active');});window.scrollTo({top:0,behavior:'smooth'});},1700);},1800);}
 
