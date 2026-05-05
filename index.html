@@ -538,6 +538,29 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
   .cta-title{font-size:26px;}
 }
 
+
+/* ════ BONIFICACIÓN ════ */
+.bonus-row{background:rgba(34,197,94,.06);border:1.5px solid rgba(34,197,94,.3);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+.bonus-badge{background:var(--green);color:#fff;font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;flex-shrink:0;}
+.bonus-info{flex:1;}
+.bonus-name{font-size:14px;font-weight:800;color:var(--black);}
+.bonus-desc{font-size:11px;color:var(--gray);margin-top:2px;}
+.bonus-price{text-align:right;flex-shrink:0;}
+.bonus-price-strike{font-size:12px;color:var(--gray);text-decoration:line-through;}
+.bonus-price-free{font-size:15px;font-weight:800;color:var(--green);}
+.bonus-note{font-size:10px;color:var(--gray);margin-top:2px;}
+
+/* Bonus en resumen cotización */
+.qs-line.bonus .ql{color:#4ade80;}
+.qs-line.bonus .qv{color:#4ade80;font-weight:700;}
+.qs-line.bonus-note-line .ql{color:#555;font-size:11px;font-style:italic;}
+.qs-line.bonus-note-line .qv{color:#555;font-size:11px;}
+
+/* Bonus en checkout */
+.order-line.bonus .name{color:var(--green);}
+.order-line.bonus .price{color:var(--green);font-weight:800;}
+.bonus-checkout-note{font-size:11px;color:var(--gray);font-style:italic;padding:4px 0 8px;border-bottom:1px solid var(--border);}
+
 </style>
 </head>
 <body>
@@ -1150,6 +1173,9 @@ function s1QtyToggle(key,unit){/* no-op: s1 addons are read-only now */}
 function renderS1Total(){
   document.getElementById('s1-total').textContent='U$S '+s1Total;
   let cl='<div class="order-line"><span class="name">Plan Esencial</span><span class="price">U$S 99/mes</span></div>';
+  // Bonificación siempre visible en checkout
+  cl+='<div class="order-line bonus"><span class="name">✦ Check Me x2 incluido</span><span class="price">GRATIS</span></div>';
+  cl+='<div class="bonus-checkout-note">Primeros 30 días gratis · luego U$S 20/mes</div>';
   Object.values(s1Addons).forEach(a=>{cl+=`<div class="order-line"><span class="name">${a.label}</span><span class="price">+ U$S ${a.price}/mes</span></div>`;});
   document.getElementById('checkout-lines').innerHTML=cl;
   document.getElementById('checkout-total').textContent='U$S '+s1Total;
@@ -1157,10 +1183,18 @@ function renderS1Total(){
 }
 
 function renderS1Summary(){
-  // Muestra solo plan base + lo que cotizó, limpio
   let html = `<div class="s1-sum-item">
     <div><div class="s1-sum-item-name">Plan Esencial</div><div class="s1-sum-item-sub">1–4 usuarios · 6 módulos · Análisis IA</div></div>
     <div class="s1-sum-item-price">U$S 99<span style="font-size:10px;font-weight:400;color:rgba(255,255,255,.4)">/mes</span></div>
+  </div>
+  <div class="s1-sum-item" style="border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.07);">
+    <div>
+      <div class="s1-sum-item-name" style="color:#4ade80;">✦ Check Me x2 incluido</div>
+      <div class="s1-sum-item-sub" style="color:rgba(74,222,128,.6);">30 días gratis · luego U$S 20/mes</div>
+    </div>
+    <div>
+      <div style="font-size:14px;font-weight:800;color:#4ade80;">GRATIS</div>
+    </div>
   </div>`;
   Object.values(s1Addons).forEach(a=>{
     html += `<div class="s1-sum-item">
@@ -1211,7 +1245,19 @@ function initPayment(gateway){document.querySelectorAll('.screen').forEach(s=>s.
 function cotToggle(row,key,price){if(row.classList.contains('selected')){row.classList.remove('selected');delete cotAddons[key];cotTotal-=price;}else{row.classList.add('selected');cotAddons[key]={label:addonLabels[key],price};cotTotal+=price;}renderCot();}
 function cotQty(key,unit,delta){const s=cotQtyState[key],newQty=Math.max(1,s.qty+delta),row=document.getElementById('cot-'+key),was=row.classList.contains('selected');if(was&&cotAddons[key])cotTotal-=cotAddons[key].price;s.qty=newQty;const np=newQty*unit;document.getElementById('cot-qty-'+key).textContent=newQty;document.getElementById('cot-price-'+key).textContent=np;if(!was)row.classList.add('selected');cotAddons[key]={label:addonLabels[key]+(newQty>1?` x${newQty}`:''),price:np};cotTotal+=np;renderCot();}
 function cotQtyToggle(key,unit){const row=document.getElementById('cot-'+key);if(row.classList.contains('selected')){row.classList.remove('selected');cotTotal-=cotAddons[key].price;delete cotAddons[key];}else{row.classList.add('selected');const qty=cotQtyState[key].qty,price=qty*unit;cotAddons[key]={label:addonLabels[key]+(qty>1?` x${qty}`:''),price};cotTotal+=price;}renderCot();}
-function renderCot(){let l='<div class="qs-line"><span class="ql">Plan Esencial</span><span class="qv">U$S 99</span></div>';Object.values(cotAddons).forEach(a=>{l+=`<div class="qs-line"><span class="ql">${a.label}</span><span class="qv">+ U$S ${a.price}</span></div>`;});document.getElementById('cot-summary-lines').innerHTML=l;document.getElementById('cot-total').textContent='U$S '+cotTotal;}
+function renderCot(){
+  let l='<div class="qs-line"><span class="ql">Plan Esencial</span><span class="qv">U$S 99</span></div>';
+  l+=`<div class="qs-line bonus" style="flex-direction:column;align-items:flex-start;gap:2px;padding:8px 0;">
+    <div style="display:flex;justify-content:space-between;width:100%;">
+      <span class="ql">✦ Check Me x2 incluido</span>
+      <span class="qv" style="color:#4ade80;">GRATIS</span>
+    </div>
+    <span style="font-size:10px;color:#555;font-style:italic;">Primeros 30 días gratis · luego U$S 20/mes</span>
+  </div>`;
+  Object.values(cotAddons).forEach(a=>{l+=`<div class="qs-line"><span class="ql">${a.label}</span><span class="qv">+ U$S ${a.price}</span></div>`;});
+  document.getElementById('cot-summary-lines').innerHTML=l;
+  document.getElementById('cot-total').textContent='U$S '+cotTotal;
+}
 
 function activarCotizacion(){
   // Copiar estado del cotizador directamente a s1 (sin depender del DOM)
@@ -1251,6 +1297,8 @@ document.getElementById('cot-usuarios').addEventListener('click',function(e){if(
 // s1 addon listeners removed — addons now shown as read-only summary
 document.querySelectorAll('.qty-btn,.qty-btn-c').forEach(btn=>btn.addEventListener('click',e=>e.stopPropagation()));
 
+// Mostrar bonificación en el resumen desde el inicio
+renderCot();
 </script>
 
 <!-- BOTPRESS WEBCHAT -->
