@@ -1307,9 +1307,7 @@ renderCot();
 
 <script>
 // ══════════════════════════════════════════
-// UTK → BOTPRESS BRIDGE
-// Espera el evento oficial webchat:initialized
-// y usa updateUser (API doc oficial v3.6)
+// UTK → BOTPRESS BRIDGE (Optimizado)
 // ══════════════════════════════════════════
 
 function getCookie(name) {
@@ -1325,22 +1323,31 @@ function updateDebugPanel(utk) {
   }
 }
 
-// Evento oficial Botpress v3.6 — se dispara cuando el webchat está listo
+// Evento oficial Botpress v3.6 cuando el chat está 100% conectado al backend
 window.botpress.on('webchat:ready', function() {
-  console.log('[UTK Bridge] webchat:initialized disparado');
+  console.log('[UTK Bridge] webchat:ready activado con éxito');
 
-  function tryInject(attemptsLeft) {
+  async function tryInject(attemptsLeft) {
     const utk = getCookie('hubspotutk');
     updateDebugPanel(utk);
-    console.log('[UTK Bridge] Cookie hubspotutk:', utk || 'NO ENCONTRADA');
+    console.log('[UTK Bridge] Cookie hubspotutk detectada en navegador:', utk || 'NO ENCONTRADA');
 
     if (utk) {
-      window.botpress.updateUser({ data: { hubspot_utk: utk } });
-      console.log('[UTK Bridge] ✅ updateUser enviado:', utk);
-      const elStatus = document.getElementById('utk-bp-status');
-      if (elStatus) {
-        elStatus.textContent = '✅ enviado: ' + utk.slice(0, 12) + '...';
-        elStatus.style.color = '#22C55E';
+      try {
+        console.log('[UTK Bridge] Enviando actualización de perfil a Botpress...');
+        
+        // Usamos AWAIT para obligar al script a esperar que el backend confirme el guardado
+        await window.botpress.updateUser({ data: { hubspot_utk: utk } });
+        
+        console.log('[UTK Bridge] ✅ Confirmado: UTK impactada con éxito en el servidor de Botpress:', utk);
+        
+        const elStatus = document.getElementById('utk-bp-status');
+        if (elStatus) {
+          elStatus.textContent = '✅ Sincronizado: ' + utk.slice(0, 12) + '...';
+          elStatus.style.color = '#22C55E';
+        }
+      } catch (err) {
+        console.log('[UTK Bridge] Error al actualizar usuario:', err.message);
       }
     } else if (attemptsLeft > 0) {
       setTimeout(function() { tryInject(attemptsLeft - 1); }, 1000);
