@@ -1318,19 +1318,18 @@ function getCookie(name) {
 }
 
 function injectUTKToBotpress(utk) {
-  // Intentar pasar la UTK a Botpress via userData
-  if (window.botpress) {
-    try {
-      window.botpress.setUser({
-        data: { hubspot_utk: utk }
-      });
-      console.log('[UTK Bridge] ✅ Enviado a Botpress via setUser:', utk);
-      document.getElementById('utk-bp-status').textContent = '✅ enviado: ' + utk.slice(0, 12) + '...';
-      document.getElementById('utk-bp-status').style.color = '#22C55E';
-    } catch(e) {
-      // Fallback: pasar via sendPayload cuando abra el chat
-      console.warn('[UTK Bridge] setUser no disponible, usando fallback evento:', e);
-    }
+  try {
+    // API correcta para Botpress v3.6
+    window.botpress.updateUser({
+      data: { hubspot_utk: utk }
+    });
+    console.log('[UTK Bridge] ✅ Enviado a Botpress via updateUser:', utk);
+    document.getElementById('utk-bp-status').textContent = '✅ enviado: ' + utk.slice(0, 12) + '...';
+    document.getElementById('utk-bp-status').style.color = '#22C55E';
+  } catch(e) {
+    console.warn('[UTK Bridge] updateUser falló:', e.message);
+    document.getElementById('utk-bp-status').textContent = '⚠ error: ' + e.message;
+    document.getElementById('utk-bp-status').style.color = '#F59E0B';
   }
 }
 
