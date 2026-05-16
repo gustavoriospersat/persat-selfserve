@@ -1308,8 +1308,8 @@ renderCot();
 <script>
 // ══════════════════════════════════════════
 // UTK → BOTPRESS BRIDGE
-// Lee la cookie hubspotutk y la pasa como
-// variable de workflow a Botpress
+// Espera el evento oficial webchat:initialized
+// y usa updateUser (API doc oficial v3.6)
 // ══════════════════════════════════════════
 
 function getCookie(name) {
@@ -1317,74 +1317,37 @@ function getCookie(name) {
   return match ? match[2] : null;
 }
 
-function injectUTKToBotpress(utk) {
-  try {
-    // API correcta para Botpress v3.6
-    window.botpress.updateUser({
-      data: { hubspot_utk: utk }
-    });
-    console.log('[UTK Bridge] ✅ Enviado a Botpress via updateUser:', utk);
-    document.getElementById('utk-bp-status').textContent = '✅ enviado: ' + utk.slice(0, 12) + '...';
-    document.getElementById('utk-bp-status').style.color = '#22C55E';
-  } catch(e) {
-    console.warn('[UTK Bridge] updateUser falló:', e.message);
-    document.getElementById('utk-bp-status').textContent = '⚠ error: ' + e.message;
-    document.getElementById('utk-bp-status').style.color = '#F59E0B';
+function updateDebugPanel(utk) {
+  const elVal = document.getElementById('utk-value');
+  if (elVal) {
+    elVal.textContent = utk || '⚠ no encontrada';
+    elVal.style.color = utk ? '#22C55E' : '#F59E0B';
   }
 }
 
-function initUTKBridge() {
-  const utk = getCookie('hubspotutk');
+// Evento oficial Botpress v3.6 — se dispara cuando el webchat está listo
+window.botpress.on('webchat:initialized', function() {
+  console.log('[UTK Bridge] webchat:initialized disparado');
 
-  // Actualizar panel de debug
-  const utkDisplay = document.getElementById('utk-value');
-  if (utkDisplay) {
+  function tryInject(attemptsLeft) {
+    const utk = getCookie('hubspotutk');
+    updateDebugPanel(utk);
+    console.log('[UTK Bridge] Cookie hubspotutk:', utk || 'NO ENCONTRADA');
+
     if (utk) {
-      utkDisplay.textContent = utk;
-      utkDisplay.style.color = '#22C55E';
-    } else {
-      utkDisplay.textContent = '⚠ no encontrada (esperando HubSpot...)';
-      utkDisplay.style.color = '#F59E0B';
+      window.botpress.updateUser({ data: { hubspot_utk: utk } });
+      console.log('[UTK Bridge] ✅ updateUser enviado:', utk);
+      const elStatus = document.getElementById('utk-bp-status');
+      if (elStatus) {
+        elStatus.textContent = '✅ enviado: ' + utk.slice(0, 12) + '...';
+        elStatus.style.color = '#22C55E';
+      }
+    } else if (attemptsLeft > 0) {
+      setTimeout(function() { tryInject(attemptsLeft - 1); }, 1000);
     }
   }
 
-  // Log siempre en consola para verificación
-  console.log('[UTK Bridge] Cookie hubspotutk:', utk || 'NO ENCONTRADA');
-
-  if (utk) {
-    // Guardar en sessionStorage como backup
-    sessionStorage.setItem('hubspot_utk', utk);
-
-    // Intentar inyectar en Botpress
-    if (window.botpress) {
-      injectUTKToBotpress(utk);
-    } else {
-      // Botpress todavía no cargó, esperar el evento init
-      window.addEventListener('message', function(event) {
-        if (event.data && (event.data.type === 'bp-webchat:ready' || event.data.name === 'webchatReady')) {
-          injectUTKToBotpress(utk);
-        }
-      });
-      // Fallback polling por si el evento no dispara
-      let attempts = 0;
-      const poller = setInterval(function() {
-        attempts++;
-        if (window.botpress) {
-          clearInterval(poller);
-          injectUTKToBotpress(utk);
-        }
-        if (attempts > 20) clearInterval(poller);
-      }, 500);
-    }
-  }
-}
-
-// Esperar a que HubSpot genere la cookie (puede tardar 1-2 seg)
-window.addEventListener('load', function() {
-  // Primer intento inmediato
-  initUTKBridge();
-  // Segundo intento a 2s por si la cookie tarda en generarse
-  setTimeout(initUTKBridge, 2000);
+  tryInject(5);
 });
 </script>
 </body>
