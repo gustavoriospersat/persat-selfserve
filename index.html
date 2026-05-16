@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Persat GO — Self Serve</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet"/>
+<!-- Start of HubSpot Embed Code -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js.hs-scripts.com/51196368.js"></script>
+<!-- End of HubSpot Embed Code -->
+<!-- HubSpot Forms SDK -->
+<script src="https://js.hsforms.net/forms/embed/51196368.js" defer></script>
 <style>
 :root{
   --violet:#3B2FD9;--vl:#5448F0;
@@ -851,25 +856,20 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
 
         <div class="aten-form-card" id="atencionForm">
           <div class="aten-form-title">Dejanos tus datos</div>
-          <div class="af-row">
-            <div class="af-field"><label>Nombre *</label><input type="text" id="af-nombre" placeholder="Tu nombre"/></div>
-            <div class="af-field"><label>Apellido *</label><input type="text" id="af-apellido" placeholder="Tu apellido"/></div>
+          <!-- HubSpot Form Real -->
+          <div class="hs-form-frame" data-region="na1" data-form-id="f5013b20-bb94-44c7-a4b1-e1fae1bf8b6b" data-portal-id="51196368"></div>
+          <!-- Debug panel UTK (solo para testing) -->
+          <div id="utk-debug" style="margin-top:16px;background:#0D0D0D;border-radius:10px;padding:14px 16px;font-size:12px;font-family:monospace;">
+            <div style="color:#888;margin-bottom:6px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;">🔍 Debug — hubspotutk</div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <span style="color:#6B7280;">Cookie:</span>
+              <span id="utk-value" style="color:#22C55E;font-weight:700;word-break:break-all;">cargando...</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap;">
+              <span style="color:#6B7280;">Botpress var:</span>
+              <span id="utk-bp-status" style="color:#F26419;font-weight:700;">pendiente</span>
+            </div>
           </div>
-          <div class="af-field"><label>Email *</label><input type="email" id="af-email" placeholder="tu@empresa.com"/></div>
-          <div class="af-field"><label>Teléfono</label><input type="tel" id="af-tel" placeholder="+54 11 0000-0000"/></div>
-          <div class="af-field">
-            <label>¿En qué podemos ayudarte?</label>
-            <select id="af-motivo">
-              <option value="">Seleccioná un motivo</option>
-              <option>Quiero una demo del producto</option>
-              <option>Tengo un equipo grande (+21 personas)</option>
-              <option>Tengo dudas sobre los planes</option>
-              <option>Necesito una propuesta personalizada</option>
-              <option>Otro</option>
-            </select>
-          </div>
-          <button class="btn-af" onclick="submitAtencion()">Quiero que me contacten →</button>
-          <div class="af-success" id="af-success">✓ ¡Perfecto! Te contactamos en las próximas 24hs. 🎉</div>
         </div>
       </div>
     </div>
@@ -1303,6 +1303,90 @@ renderCot();
 
 <!-- BOTPRESS WEBCHAT -->
 <script src="https://cdn.botpress.cloud/webchat/v3.6/inject.js"></script>
-<script src="https://files.bpcontent.cloud/2026/05/04/12/20260504121418-A7UP2VBC.js" defer></script>
+<script src="https://files.bpcontent.cloud/2026/05/16/18/20260516182447-E1L7CFIL.js" defer></script>
+
+<script>
+// ══════════════════════════════════════════
+// UTK → BOTPRESS BRIDGE
+// Lee la cookie hubspotutk y la pasa como
+// variable de workflow a Botpress
+// ══════════════════════════════════════════
+
+function getCookie(name) {
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  return match ? match[2] : null;
+}
+
+function injectUTKToBotpress(utk) {
+  // Intentar pasar la UTK a Botpress via userData
+  if (window.botpress) {
+    try {
+      window.botpress.setUser({
+        data: { hubspot_utk: utk }
+      });
+      console.log('[UTK Bridge] ✅ Enviado a Botpress via setUser:', utk);
+      document.getElementById('utk-bp-status').textContent = '✅ enviado: ' + utk.slice(0, 12) + '...';
+      document.getElementById('utk-bp-status').style.color = '#22C55E';
+    } catch(e) {
+      // Fallback: pasar via sendPayload cuando abra el chat
+      console.warn('[UTK Bridge] setUser no disponible, usando fallback evento:', e);
+    }
+  }
+}
+
+function initUTKBridge() {
+  const utk = getCookie('hubspotutk');
+
+  // Actualizar panel de debug
+  const utkDisplay = document.getElementById('utk-value');
+  if (utkDisplay) {
+    if (utk) {
+      utkDisplay.textContent = utk;
+      utkDisplay.style.color = '#22C55E';
+    } else {
+      utkDisplay.textContent = '⚠ no encontrada (esperando HubSpot...)';
+      utkDisplay.style.color = '#F59E0B';
+    }
+  }
+
+  // Log siempre en consola para verificación
+  console.log('[UTK Bridge] Cookie hubspotutk:', utk || 'NO ENCONTRADA');
+
+  if (utk) {
+    // Guardar en sessionStorage como backup
+    sessionStorage.setItem('hubspot_utk', utk);
+
+    // Intentar inyectar en Botpress
+    if (window.botpress) {
+      injectUTKToBotpress(utk);
+    } else {
+      // Botpress todavía no cargó, esperar el evento init
+      window.addEventListener('message', function(event) {
+        if (event.data && (event.data.type === 'bp-webchat:ready' || event.data.name === 'webchatReady')) {
+          injectUTKToBotpress(utk);
+        }
+      });
+      // Fallback polling por si el evento no dispara
+      let attempts = 0;
+      const poller = setInterval(function() {
+        attempts++;
+        if (window.botpress) {
+          clearInterval(poller);
+          injectUTKToBotpress(utk);
+        }
+        if (attempts > 20) clearInterval(poller);
+      }, 500);
+    }
+  }
+}
+
+// Esperar a que HubSpot genere la cookie (puede tardar 1-2 seg)
+window.addEventListener('load', function() {
+  // Primer intento inmediato
+  initUTKBridge();
+  // Segundo intento a 2s por si la cookie tarda en generarse
+  setTimeout(initUTKBridge, 2000);
+});
+</script>
 </body>
 </html>
