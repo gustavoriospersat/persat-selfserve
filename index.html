@@ -1326,7 +1326,7 @@ function updateDebugPanel(utk) {
 }
 
 // Evento oficial Botpress v3.6 — se dispara cuando el webchat está listo
-window.botpress.on('webchat:initialized', function() {
+window.botpress.on('webchat:ready', function() {
   console.log('[UTK Bridge] webchat:initialized disparado');
 
   function tryInject(attemptsLeft) {
