@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Persat GO — Operación en campo, simple y visible</title>
+<meta name="description" content="Digitalizá técnicos, visitas, logística e inspecciones en minutos. Persat GO ordena tu operación en campo desde USD 99/mes."/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange: #FF8323;
+  --orange-dark: #E27023;
+  --orange-soft: #FFF1E7;
+  --violet: #3E35AF;
+  --violet-dark: #2A2A87;
+  --gray: #CECECE;
+  --light: #EEEEEE;
+  --ink: #121225;
+  --muted: #6F7182;
+  --white: #FFFFFF;
+  --black: #050506;
+  --success: #22A06B;
+  --shadow: 0 24px 70px rgba(18,18,37,.14);
+  --radius-xl: 32px;
+  --radius-lg: 22px;
+  --radius-md: 16px;
+  --max: 1180px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Montserrat',system-ui,-apple-system,sans-serif;color:var(--ink);background:#fff;overflow-x:hidden;}
+a{color:inherit;text-decoration:none;}
+
+/* ── PAGE BG ── */
+.page{position:relative;min-height:100vh;background:radial-gradient(circle at 82% 8%,rgba(255,131,35,.18),transparent 28%),radial-gradient(circle at 12% 12%,rgba(62,53,175,.12),transparent 24%),linear-gradient(180deg,#FFFFFF 0%,#FFF8F3 46%,#FFFFFF 100%);}
+
+.container{width:min(var(--max),calc(100% - 40px));margin:0 auto;}
+
+/* ── STEPS BAR ── */
+.steps-bar{position:fixed;top:0;left:0;right:0;z-index:200;background:var(--black);display:flex;align-items:center;justify-content:center;height:52px;}
+.steps-bar.hidden{display:none;}
+.step-item{display:flex;align-items:center;gap:8px;padding:0 18px;height:52px;color:#555;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;}
+.step-item::after{content:'→';margin-left:8px;color:#2a2a2a;}
+.step-item:last-child::after{display:none;}
+.step-num{width:20px;height:20px;border-radius:50%;background:#222;color:#555;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.step-item.active{color:#fff;}.step-item.active .step-num{background:var(--orange);color:#fff;}
+.step-item.done{color:var(--success);}.step-item.done .step-num{background:var(--success);color:#fff;}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh;}
+.screen.active{display:block;}
+#step0.active{display:flex;flex-direction:column;}
+
+/* ── NAV ── */
+.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(18px);background:rgba(255,255,255,.78);border-bottom:1px solid rgba(18,18,37,.07);}
+.nav-inner{height:76px;display:flex;align-items:center;justify-content:space-between;gap:24px;}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:20px;letter-spacing:-.03em;color:var(--ink);}
+.brand-accent{color:var(--orange);}
+.nav-links{display:flex;align-items:center;gap:24px;font-weight:700;font-size:14px;color:rgba(18,18,37,.72);}
+.nav-links a{cursor:pointer;transition:color .2s;}.nav-links a:hover{color:var(--orange);}
+.nav-actions{display:flex;align-items:center;gap:12px;}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:999px;padding:15px 22px;font-family:inherit;font-weight:900;font-size:14px;cursor:pointer;transition:transform .2s,box-shadow .2s,background .2s;white-space:nowrap;}
+.btn:hover{transform:translateY(-2px);}
+.btn-primary{color:#fff;background:linear-gradient(135deg,var(--orange),var(--orange-dark));box-shadow:0 16px 32px rgba(255,131,35,.32);}
+.btn-primary:hover{box-shadow:0 22px 42px rgba(255,131,35,.42);}
+.btn-secondary{color:var(--violet-dark);background:#fff;border:1px solid rgba(42,42,135,.12);box-shadow:0 12px 28px rgba(18,18,37,.07);}
+.btn-ghost{color:var(--violet-dark);background:rgba(62,53,175,.08);}
+
+/* ── HERO ── */
+.hero{position:relative;padding:70px 0 46px;}
+.hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:56px;align-items:center;}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;padding:8px 12px;border-radius:999px;background:rgba(255,131,35,.12);color:var(--orange-dark);font-weight:900;font-size:13px;margin-bottom:20px;}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--success);box-shadow:0 0 0 6px rgba(34,160,107,.12);}
+h1{margin:0;max-width:720px;font-size:clamp(42px,6vw,78px);line-height:.92;letter-spacing:-.07em;font-weight:900;color:#111122;}
+.accent{color:var(--orange);}
+.violet{color:var(--violet);}
+.hero-copy{margin:24px 0 0;max-width:610px;color:var(--muted);font-size:clamp(17px,2vw,21px);line-height:1.52;font-weight:600;}
+.hero-actions{margin-top:34px;display:flex;align-items:center;flex-wrap:wrap;gap:14px;}
+.microtrust{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px;color:rgba(18,18,37,.62);font-size:13px;font-weight:800;}
+.microtrust span{display:inline-flex;align-items:center;gap:7px;}
+.check{width:18px;height:18px;border-radius:50%;background:rgba(34,160,107,.12);color:var(--success);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;}
+
+/* Hero card */
+.hero-card{position:relative;border-radius:38px;background:linear-gradient(145deg,#15152A,#24235A 54%,#0E0E18);padding:18px;box-shadow:var(--shadow);min-height:560px;overflow:hidden;}
+.hero-card::before{content:'';position:absolute;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(255,131,35,.38),transparent 68%);right:-110px;top:-110px;}
+.hero-card::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(180deg,black,transparent 74%);}
+.app-window{position:relative;z-index:2;background:rgba(255,255,255,.96);border-radius:28px;min-height:520px;padding:18px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.8);overflow:hidden;}
+.window-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.dots{display:flex;gap:7px;}.dots i{width:10px;height:10px;border-radius:50%;background:#E0E0E0;display:block;}
+.status-pill{display:inline-flex;align-items:center;gap:7px;background:rgba(34,160,107,.12);color:#11784C;border-radius:999px;padding:8px 10px;font-size:12px;font-weight:900;}
+.dashboard{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.metric,.task,.route-card{background:#fff;border:1px solid rgba(18,18,37,.08);border-radius:22px;padding:16px;box-shadow:0 12px 30px rgba(18,18,37,.06);}
+.metric strong{display:block;font-size:30px;letter-spacing:-.04em;color:var(--violet-dark);}
+.metric span,.task span,.route-card span{color:var(--muted);font-size:12px;font-weight:800;}
+.task{grid-column:span 2;display:flex;justify-content:space-between;align-items:center;gap:12px;}
+.avatar-row{display:flex;align-items:center;gap:10px;}
+.avatar{width:42px;height:42px;border-radius:16px;background:linear-gradient(135deg,var(--orange),var(--violet));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;}
+.progress{height:10px;border-radius:999px;background:#ECECF5;overflow:hidden;margin-top:12px;}
+.bar{width:78%;height:100%;background:linear-gradient(90deg,var(--orange),var(--violet));border-radius:inherit;}
+.route-card{grid-column:span 2;}
+.route-map{height:150px;border-radius:20px;margin-top:12px;background:radial-gradient(circle at 18% 34%,var(--orange) 0 6px,transparent 7px),radial-gradient(circle at 72% 25%,var(--violet) 0 6px,transparent 7px),radial-gradient(circle at 54% 75%,var(--orange) 0 6px,transparent 7px),linear-gradient(135deg,#F3F4FA,#FFFFFF);position:relative;overflow:hidden;}
+.route-map::before{content:'';position:absolute;inset:30px 60px 55px 65px;border:3px dashed rgba(62,53,175,.22);border-radius:55% 45% 60% 40%;transform:rotate(-8deg);}
+.floating{position:absolute;z-index:4;right:8px;bottom:38px;width:min(280px,46vw);background:#fff;border-radius:24px;padding:16px;box-shadow:0 26px 70px rgba(18,18,37,.20);border:1px solid rgba(18,18,37,.08);animation:float 4s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.floating-top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:10px;}
+.floating strong{color:var(--ink);font-size:14px;}
+.floating p{color:var(--muted);margin:6px 0 0;font-size:12px;font-weight:700;line-height:1.4;}
+
+/* App proof */
+.app-proof{margin-top:22px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;background:rgba(255,255,255,.80);border:1px solid rgba(18,18,37,.08);border-radius:26px;padding:16px;box-shadow:0 18px 45px rgba(18,18,37,.08);max-width:560px;}
+.app-proof-copy{display:flex;align-items:center;gap:12px;}
+.phone-icon{width:44px;height:44px;border-radius:16px;background:linear-gradient(135deg,var(--violet-dark),var(--violet));color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 14px 26px rgba(62,53,175,.20);}
+.app-proof strong{display:block;font-size:15px;font-weight:900;color:var(--violet-dark);}
+.app-proof small{display:block;margin-top:4px;color:var(--muted);font-weight:700;line-height:1.35;}
+.play-badge{min-width:154px;border-radius:16px;background:#111122;color:#fff;padding:10px 14px;display:inline-flex;align-items:center;gap:10px;box-shadow:0 16px 34px rgba(18,18,37,.18);}
+.play-triangle{width:0;height:0;border-top:10px solid transparent;border-bottom:10px solid transparent;border-left:16px solid var(--orange);}
+.play-badge span{display:block;font-size:9px;font-weight:700;opacity:.78;line-height:1;}
+.play-badge b{display:block;font-size:17px;line-height:1.1;letter-spacing:-.04em;}
+
+/* Trust strip */
+.trust-strip{margin:38px auto 0;border:1px solid rgba(18,18,37,.07);background:rgba(255,255,255,.72);border-radius:var(--radius-xl);box-shadow:0 18px 45px rgba(18,18,37,.06);padding:18px;display:grid;grid-template-columns:.9fr repeat(3,1fr);gap:12px;align-items:center;}
+.trust-title{font-weight:900;letter-spacing:-.03em;color:var(--violet-dark);}
+.trust-item{padding:14px 16px;border-radius:18px;background:#fff;font-weight:900;color:rgba(18,18,37,.78);display:flex;align-items:center;gap:10px;}
+.trust-item small{display:block;color:var(--muted);font-size:11px;font-weight:700;margin-top:2px;}
+
+/* ── SECTIONS ── */
+section{padding:74px 0;}
+.section-head{max-width:760px;margin:0 auto 34px;text-align:center;}
+.section-head h2{margin:0;font-size:clamp(32px,4vw,54px);line-height:1.02;letter-spacing:-.06em;font-weight:900;}
+.section-head p{margin:16px auto 0;max-width:660px;color:var(--muted);font-size:18px;line-height:1.5;font-weight:600;}
+
+/* Benefits */
+.benefits{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.benefit-card{position:relative;min-height:300px;background:#fff;border:1px solid rgba(18,18,37,.07);border-radius:var(--radius-xl);padding:26px;box-shadow:0 18px 45px rgba(18,18,37,.06);overflow:hidden;}
+.benefit-card::after{content:'';position:absolute;width:170px;height:170px;background:linear-gradient(135deg,rgba(255,131,35,.14),rgba(62,53,175,.10));border-radius:50%;right:-70px;bottom:-70px;}
+.icon{width:54px;height:54px;border-radius:18px;display:flex;align-items:center;justify-content:center;background:var(--orange-soft);color:var(--orange-dark);font-size:24px;margin-bottom:20px;}
+.benefit-card h3{margin:0;font-size:24px;line-height:1.08;letter-spacing:-.04em;font-weight:900;}
+.benefit-card p{margin:12px 0 0;color:var(--muted);line-height:1.55;font-weight:600;}
+.benefit-proof{margin-top:22px;display:inline-flex;align-items:center;gap:8px;color:var(--violet-dark);font-size:13px;font-weight:900;}
+
+/* Conversion block */
+.conversion-block{background:#111122;color:#fff;border-radius:44px;padding:36px;display:grid;grid-template-columns:.86fr 1.14fr;gap:30px;align-items:center;position:relative;overflow:hidden;}
+.conversion-block::before{content:'';position:absolute;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(255,131,35,.28),transparent 68%);left:-180px;top:-190px;}
+.conversion-copy{position:relative;z-index:2;}
+.conversion-copy h2{font-size:clamp(32px,4vw,56px);line-height:1;letter-spacing:-.06em;margin:0;font-weight:900;}
+.conversion-copy p{color:rgba(255,255,255,.72);font-weight:600;line-height:1.6;font-size:17px;}
+.steps{position:relative;z-index:2;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.step{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.12);border-radius:26px;padding:22px;}
+.step-number{width:38px;height:38px;border-radius:14px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-weight:900;margin-bottom:18px;}
+.step h3{margin:0;font-size:19px;letter-spacing:-.03em;}
+.step p{margin:10px 0 0;color:rgba(255,255,255,.66);line-height:1.45;font-weight:600;font-size:14px;}
+
+/* ── PRECIO / COTIZADOR ── */
+.price-layout{display:grid;grid-template-columns:.95fr 1.05fr;gap:22px;align-items:stretch;}
+.price-card{background:#fff;border-radius:38px;padding:30px;box-shadow:var(--shadow);border:1px solid rgba(18,18,37,.08);position:relative;overflow:hidden;}
+.price-card::before{content:'Recomendado';position:absolute;top:20px;right:20px;background:var(--orange);color:#fff;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:900;}
+.price{display:flex;align-items:flex-end;gap:8px;margin:24px 0 8px;}
+.price strong{font-size:58px;letter-spacing:-.07em;line-height:.9;color:var(--violet-dark);}
+.price span{color:var(--muted);font-weight:800;}
+.list{list-style:none;padding:0;margin:24px 0;display:grid;gap:13px;}
+.list li{display:flex;align-items:flex-start;gap:10px;color:rgba(18,18,37,.78);font-weight:700;line-height:1.4;}
+
+/* Quote / cotizador card */
+.quote-card{border-radius:38px;padding:28px;background:linear-gradient(135deg,#F7F7FF,#FFFFFF);box-shadow:var(--shadow);border:1px solid rgba(18,18,37,.08);}
+.quote-card h3{margin:0 0 8px;font-size:26px;letter-spacing:-.04em;font-weight:900;}
+.quote-card>p{color:var(--muted);font-weight:700;line-height:1.5;margin-bottom:20px;font-size:14px;}
+.calculator-row{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid rgba(18,18,37,.08);}
+.calculator-row:last-of-type{border-bottom:0;}
+.calculator-row strong{display:block;font-weight:900;font-size:14px;}
+.calculator-row small{color:var(--muted);font-weight:700;font-size:12px;}
+.qty{display:flex;align-items:center;gap:10px;background:#fff;border-radius:999px;padding:6px;border:1px solid rgba(18,18,37,.08);}
+.qty button{width:30px;height:30px;border:0;border-radius:50%;background:var(--orange-soft);color:var(--orange-dark);font-weight:900;cursor:pointer;font-size:18px;transition:background .15s;}
+.qty button:hover{background:rgba(255,131,35,.25);}
+.total-box{margin-top:20px;background:#111122;color:#fff;border-radius:28px;padding:20px 22px;display:flex;justify-content:space-between;align-items:center;gap:18px;}
+.total-box span{color:rgba(255,255,255,.64);font-weight:700;font-size:13px;}
+.total-box strong{font-size:34px;letter-spacing:-.05em;}
+
+/* Bonus line in quote */
+.bonus-line{display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(34,160,107,.08);border:1px solid rgba(34,160,107,.2);border-radius:14px;margin:12px 0 4px;}
+.bonus-line-text{flex:1;font-size:13px;font-weight:800;color:#11784C;}
+.bonus-line-price{font-size:12px;font-weight:900;color:var(--success);}
+.bonus-line-note{font-size:11px;color:var(--muted);font-weight:700;margin-top:3px;}
+
+/* ── MÓDULOS ── */
+.modules-section{background:#F7F7FF;padding:74px 0;}
+.modules{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.module-card{padding:24px;border-radius:28px;background:#fff;border:1px solid rgba(18,18,37,.07);box-shadow:0 16px 40px rgba(18,18,37,.055);}
+.module-top{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.module-dot{width:14px;height:14px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 8px rgba(255,131,35,.12);}
+.module-card h3{margin:0;font-size:20px;line-height:1.08;letter-spacing:-.04em;font-weight:900;}
+.module-card p{margin:10px 0 0;color:var(--muted);line-height:1.55;font-weight:600;font-size:14px;}
+
+/* ── PROOF ── */
+.proof-cloud{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:stretch;}
+.proof-main{background:linear-gradient(135deg,#111122,var(--violet-dark));color:#fff;border-radius:38px;padding:34px;position:relative;overflow:hidden;min-height:360px;box-shadow:var(--shadow);}
+.proof-main::before{content:'';position:absolute;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(255,131,35,.34),transparent 68%);right:-120px;top:-120px;}
+.proof-main h3{position:relative;z-index:2;margin:0;max-width:430px;font-size:clamp(32px,4vw,54px);line-height:1;letter-spacing:-.06em;font-weight:900;}
+.proof-main p{position:relative;z-index:2;margin:18px 0 0;max-width:460px;color:rgba(255,255,255,.72);line-height:1.6;font-weight:600;}
+.proof-tags{position:relative;z-index:2;display:flex;flex-wrap:wrap;gap:10px;margin-top:28px;}
+.proof-tags span{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.88);border-radius:999px;padding:10px 12px;font-size:12px;font-weight:900;}
+.proof-bubbles{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.proof-bubble{background:#fff;border:1px solid rgba(18,18,37,.07);border-radius:28px;padding:22px;box-shadow:0 18px 42px rgba(18,18,37,.06);animation:softFloat 5s ease-in-out infinite;}
+.proof-bubble:nth-child(2){animation-delay:.6s;}
+.proof-bubble:nth-child(3){animation-delay:1.1s;}
+.proof-bubble:nth-child(4){animation-delay:1.7s;}
+@keyframes softFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+.proof-bubble strong{display:block;font-size:28px;letter-spacing:-.05em;color:var(--violet-dark);margin-bottom:8px;}
+.proof-bubble p{margin:0;color:rgba(18,18,37,.76);line-height:1.42;font-weight:800;letter-spacing:-.02em;}
+.proof-bubble small{display:block;color:var(--muted);font-weight:800;margin-top:14px;font-size:12px;}
+
+/* ── ATENCIÓN PERSONALIZADA ── */
+.atencion-section{background:var(--ink);padding:80px 0;}
+.atencion-inner{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;}
+.aten-left{}
+.aten-title{font-size:clamp(28px,4vw,44px);font-weight:900;color:#fff;line-height:1.1;letter-spacing:-.05em;margin-bottom:16px;}
+.aten-desc{font-size:15px;color:rgba(255,255,255,.65);line-height:1.7;margin-bottom:24px;font-weight:600;}
+.aten-features{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px;}
+.aten-feat{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:20px;padding:18px;display:flex;gap:12px;align-items:flex-start;}
+.aten-feat-icon{width:36px;height:36px;border-radius:10px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.aten-feat-title{font-size:14px;font-weight:800;color:#fff;margin-bottom:4px;}
+.aten-feat-sub{font-size:12px;color:rgba(255,255,255,.6);}
+.btn-aten{background:var(--orange);color:#fff;border:none;border-radius:999px;padding:15px 28px;font-family:inherit;font-size:14px;font-weight:900;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:transform .15s,box-shadow .2s;box-shadow:0 16px 32px rgba(255,131,35,.32);}
+.btn-aten:hover{transform:translateY(-2px);box-shadow:0 22px 42px rgba(255,131,35,.42);}
+.aten-form-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:32px;padding:32px;}
+.aten-form-title{font-size:20px;font-weight:900;color:#fff;margin-bottom:20px;letter-spacing:-.03em;}
+.af-field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.af-field label{font-size:11px;font-weight:800;color:rgba(255,255,255,.45);letter-spacing:.08em;text-transform:uppercase;}
+.af-field input,.af-field select{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:13px 14px;font-family:inherit;font-weight:700;font-size:14px;color:#fff;outline:none;transition:border-color .2s;appearance:none;width:100%;}
+.af-field input::placeholder{color:rgba(255,255,255,.3);}
+.af-field input:focus,.af-field select:focus{border-color:var(--orange);box-shadow:0 0 0 4px rgba(255,131,35,.12);}
+.af-field select option{color:var(--ink);}
+.af-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.btn-af{width:100%;background:linear-gradient(135deg,var(--orange),var(--orange-dark));color:#fff;border:none;border-radius:999px;padding:15px;font-family:inherit;font-size:15px;font-weight:900;cursor:pointer;transition:transform .15s,box-shadow .2s;margin-top:6px;box-shadow:0 16px 32px rgba(255,131,35,.30);}
+.btn-af:hover{transform:translateY(-2px);box-shadow:0 22px 42px rgba(255,131,35,.40);}
+.af-success{display:none;text-align:center;padding:20px;color:var(--success);font-size:15px;font-weight:800;}
+.hs-form-frame{margin-bottom:0;}
+
+/* UTK debug */
+#utk-debug{margin-top:16px;background:#0D0D0D;border-radius:10px;padding:14px 16px;font-size:12px;font-family:monospace;}
+
+/* ── FAQ ── */
+.faq-section{padding:74px 0;background:#fff;}
+.faq-inner{max-width:860px;margin:0 auto;}
+.faq-header{text-align:center;margin-bottom:44px;}
+.faq-title{font-size:clamp(32px,4vw,54px);font-weight:900;letter-spacing:-.06em;color:var(--ink);}
+.faq-sub{color:var(--muted);font-size:17px;font-weight:600;margin-top:10px;}
+.faq-list{display:grid;gap:12px;}
+.faq-item{background:#fff;border:1px solid rgba(18,18,37,.08);border-radius:22px;box-shadow:0 12px 32px rgba(18,18,37,.045);overflow:hidden;transition:box-shadow .2s;}
+.faq-item.open{box-shadow:0 18px 48px rgba(18,18,37,.10);}
+.faq-q{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;cursor:pointer;font-size:16px;font-weight:800;color:var(--ink);gap:18px;transition:color .2s;}
+.faq-q:hover{color:var(--orange);}
+.faq-icon{font-size:22px;color:var(--orange);flex-shrink:0;transition:transform .25s;}
+.faq-item.open .faq-icon{transform:rotate(45deg);}
+.faq-a{display:none;padding:0 24px 20px;font-size:15px;color:var(--muted);line-height:1.7;font-weight:600;}
+.faq-item.open .faq-a{display:block;}
+
+/* ── CTA FINAL ── */
+.final-cta{padding:76px 0 100px;}
+.final-card{border-radius:46px;padding:54px;background:radial-gradient(circle at 76% 22%,rgba(255,131,35,.36),transparent 28%),linear-gradient(135deg,var(--violet-dark),#111122 74%);color:#fff;text-align:center;overflow:hidden;position:relative;}
+.final-card h2{margin:0 auto;max-width:780px;font-size:clamp(34px,5vw,64px);line-height:1;letter-spacing:-.07em;font-weight:900;}
+.final-card p{max-width:560px;margin:18px auto 30px;color:rgba(255,255,255,.72);font-size:18px;line-height:1.55;font-weight:600;}
+
+/* ── FOOTER ── */
+.site-footer{background:#050506;padding:48px 0 28px;}
+.footer-top{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px;}
+.footer-brand-logo{font-size:24px;font-weight:900;color:#fff;letter-spacing:-.03em;margin-bottom:10px;}
+.footer-brand-logo span{color:var(--orange);}
+.footer-brand-desc{font-size:13px;color:#555;line-height:1.6;max-width:240px;font-weight:600;}
+.footer-col-title{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#666;margin-bottom:16px;}
+.footer-links{display:flex;flex-direction:column;gap:10px;}
+.footer-links a{font-size:13px;color:#555;cursor:pointer;transition:color .2s;font-weight:600;}.footer-links a:hover{color:#fff;}
+.footer-bottom{border-top:1px solid #1a1a1a;padding-top:20px;display:flex;justify-content:space-between;align-items:center;}
+.footer-copy{font-size:12px;color:#444;font-weight:600;}
+
+/* ── STICKY MOBILE ── */
+.sticky-mobile{display:none;position:fixed;z-index:70;left:14px;right:14px;bottom:14px;background:rgba(255,255,255,.92);border:1px solid rgba(18,18,37,.10);box-shadow:0 16px 50px rgba(18,18,37,.20);backdrop-filter:blur(18px);border-radius:999px;padding:8px;align-items:center;justify-content:space-between;gap:10px;}
+.sticky-mobile strong{font-size:13px;margin-left:12px;line-height:1.2;}
+
+/* ══════════════════════════════
+   STEPS 1–3 (checkout flow)
+══════════════════════════════ */
+#step1{background:#F7F7FF;}
+#step1.active{display:grid;grid-template-columns:1fr 1fr;min-height:100vh;padding-top:52px;}
+@media(max-width:768px){
+  #step1.active{display:flex!important;flex-direction:column!important;grid-template-columns:unset!important;}
+  .s1-left{order:1;padding:72px 20px 24px!important;}
+  .s1-right{order:2;padding:28px 20px 36px!important;}
+  .s1-grid{grid-template-columns:1fr!important;}
+  .s1-form-title{font-size:36px!important;}
+  .s1-scroll-hint{display:block!important;}
+}
+.s1-left{padding:52px 52px 52px 64px;display:flex;flex-direction:column;justify-content:center;background:#F7F7FF;}
+.s1-right{background:#111122;padding:52px 44px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;}
+.s1-right::before{content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(255,131,35,.22),transparent 68%);}
+.s1-eyebrow{font-size:11px;font-weight:800;letter-spacing:.18em;color:var(--orange);text-transform:uppercase;margin-bottom:8px;}
+.s1-form-title{font-size:clamp(42px,6vw,68px);letter-spacing:-.07em;line-height:.92;font-weight:900;color:var(--ink);margin-bottom:8px;}
+.s1-form-title span{color:var(--orange);}
+.s1-form-sub{font-size:14px;color:var(--muted);margin-bottom:26px;line-height:1.6;font-weight:600;}
+.s1-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.s1-field{display:flex;flex-direction:column;gap:5px;}
+.s1-field.full{grid-column:1/-1;}
+.s1-field label{font-size:11px;font-weight:800;color:rgba(18,18,37,.6);letter-spacing:.06em;text-transform:uppercase;}
+.s1-field input,.s1-field select{background:#fff;border:1px solid rgba(18,18,37,.12);border-radius:14px;padding:13px 14px;font-family:inherit;font-weight:700;font-size:14px;color:var(--ink);outline:none;transition:border-color .2s;appearance:none;}
+.s1-field input:focus,.s1-field select:focus{border-color:var(--orange);box-shadow:0 0 0 4px rgba(255,131,35,.12);}
+.btn-s1-continue{margin-top:20px;width:100%;background:linear-gradient(135deg,var(--orange),var(--orange-dark));color:#fff;border:none;border-radius:999px;padding:16px;font-family:inherit;font-size:16px;font-weight:900;cursor:pointer;transition:transform .15s,box-shadow .2s;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 16px 32px rgba(255,131,35,.30);}
+.btn-s1-continue:hover{transform:translateY(-2px);box-shadow:0 22px 42px rgba(255,131,35,.40);}
+.btn-s1-home{width:100%;background:transparent;color:var(--muted);border:1px solid rgba(18,18,37,.15);border-radius:999px;padding:12px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;margin-top:10px;transition:border-color .2s,color .2s;}
+.btn-s1-home:hover{border-color:var(--orange);color:var(--orange);}
+.s1-scroll-hint{display:none;width:100%;margin-top:14px;background:rgba(62,53,175,.08);border:1px solid rgba(62,53,175,.2);border-radius:999px;padding:12px;font-family:inherit;font-size:13px;font-weight:800;color:var(--violet);cursor:pointer;text-align:center;animation:pulseHint 2s ease-in-out infinite;}
+@keyframes pulseHint{0%,100%{opacity:1;}50%{opacity:.6;}}
+
+/* Step 1 right — resumen */
+.s1-logo{font-size:26px;font-weight:900;letter-spacing:-.04em;color:#fff;margin-bottom:24px;}
+.s1-logo span{color:var(--orange);}
+.s1-calc-title{font-size:28px;font-weight:900;letter-spacing:-.05em;color:#fff;margin-bottom:18px;}
+.s1-sum-item{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:16px;padding:14px 16px;margin-bottom:10px;}
+.s1-sum-item-name{font-size:14px;font-weight:800;color:#fff;}
+.s1-sum-item-sub{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px;font-weight:600;}
+.s1-sum-item-price{font-size:14px;font-weight:900;color:var(--orange);white-space:nowrap;}
+.s1-total-row{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-top:1px solid rgba(255,255,255,.10);margin-top:6px;}
+.s1-total-label{font-size:14px;font-weight:800;color:rgba(255,255,255,.7);}
+.s1-total-val{font-size:38px;letter-spacing:-.06em;font-weight:900;color:var(--orange);}
+.s1-badges{display:flex;flex-direction:column;gap:6px;margin-top:10px;}
+.s1-badge{font-size:12px;color:rgba(255,255,255,.5);display:flex;align-items:center;gap:6px;font-weight:600;}
+.s1-keep-shopping{width:100%;margin-top:18px;background:transparent;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:13px;font-family:inherit;font-size:13px;font-weight:800;color:rgba(255,255,255,.6);cursor:pointer;transition:border-color .2s,color .2s;}
+.s1-keep-shopping:hover{border-color:var(--orange);color:var(--orange);}
+
+/* Step 2 — checkout */
+#step2{background:#F7F7FF;padding-top:52px;}
+#step2.active{display:block;}
+.checkout-wrap{max-width:600px;margin:0 auto;padding:48px 24px;}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:var(--muted);cursor:pointer;margin-bottom:10px;transition:color .2s;font-family:inherit;}
+.back-link:hover{color:var(--orange);}
+.trial-banner{background:#111122;border-radius:20px;padding:16px 20px;display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.trial-banner-icon{font-size:26px;}
+.trial-banner-text strong{display:block;color:#fff;font-size:14px;font-weight:900;margin-bottom:2px;}
+.trial-banner-text span{font-size:13px;color:rgba(255,255,255,.6);font-weight:600;}
+.checkout-card{background:#fff;border-radius:24px;padding:26px;box-shadow:0 8px 32px rgba(18,18,37,.08);margin-bottom:14px;border:1px solid rgba(18,18,37,.07);}
+.checkout-header{font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+.order-line{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(18,18,37,.07);font-size:14px;font-weight:700;}
+.order-line:last-of-type{border-bottom:none;}
+.order-line .name{color:var(--ink);}
+.order-line .price{font-weight:900;}
+.order-line.bonus .name{color:var(--success);}
+.order-line.bonus .price{color:var(--success);font-weight:900;}
+.bonus-checkout-note{font-size:11px;color:var(--muted);font-style:italic;padding:3px 0 10px;border-bottom:1px solid rgba(18,18,37,.07);font-weight:600;}
+.order-total{display:flex;justify-content:space-between;padding:14px 0 0;font-weight:900;font-size:16px;}
+.order-total .price{color:var(--orange);font-size:28px;letter-spacing:-.05em;}
+.paypal-btn{width:100%;background:#FFC439;color:#003087;border:none;border-radius:999px;padding:15px;font-size:15px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;font-family:inherit;transition:filter .2s;}
+.paypal-btn:hover{filter:brightness(1.05);}
+.mp-btn{width:100%;background:#009EE3;color:#fff;border:none;border-radius:999px;padding:15px;font-size:15px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;margin-bottom:10px;}
+
+/* Step redirect */
+#stepRedirect{background:#F7F7FF;}
+#stepRedirect.active{display:flex;align-items:center;justify-content:center;min-height:100vh;}
+.redirect-wrap{display:flex;align-items:center;justify-content:center;width:100%;padding:32px;}
+.redirect-card{background:#fff;border-radius:32px;padding:48px 40px;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow);border:1px solid rgba(18,18,37,.07);}
+.redirect-gateway-logo{font-size:48px;margin-bottom:16px;line-height:1;}
+.redirect-spinner{width:56px;height:56px;margin:0 auto 20px;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.redirect-title{font-size:28px;font-weight:900;letter-spacing:-.05em;color:var(--ink);margin-bottom:10px;}
+.redirect-title.confirmed{color:var(--success);}
+.redirect-sub{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:12px;font-weight:600;}
+.redirect-secure{font-size:11px;color:var(--muted);margin-top:16px;font-weight:600;}
+.redirect-check{width:64px;height:64px;margin:0 auto 20px;}
+.redirect-check svg{width:64px;height:64px;}
+.redirect-progress-bar{height:4px;background:rgba(18,18,37,.08);border-radius:2px;overflow:hidden;margin:16px 0 0;}
+.redirect-progress-fill{height:100%;background:var(--success);border-radius:2px;width:0%;transition:width 1.4s ease;}
+
+/* Step 3 — success */
+#step3{background:#F7F7FF;padding-top:52px;}
+#step3.active{display:flex;align-items:center;justify-content:center;min-height:100vh;}
+.success-card{text-align:center;max-width:480px;padding:48px 40px;background:#fff;border-radius:32px;box-shadow:var(--shadow);margin:32px;border:1px solid rgba(18,18,37,.07);}
+.success-icon{width:72px;height:72px;background:linear-gradient(135deg,var(--orange),var(--orange-dark));border-radius:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 22px;font-size:32px;font-weight:900;color:#fff;box-shadow:0 16px 32px rgba(255,131,35,.30);}
+.success-title{font-size:clamp(34px,5vw,52px);font-weight:900;letter-spacing:-.07em;color:var(--ink);margin-bottom:10px;}
+.success-sub{font-size:15px;color:var(--muted);line-height:1.6;margin-bottom:24px;font-weight:600;}
+.success-steps{background:#F7F7FF;border-radius:18px;padding:20px;text-align:left;list-style:none;display:flex;flex-direction:column;gap:12px;margin-bottom:24px;}
+.success-steps li{display:flex;align-items:center;gap:12px;font-size:14px;font-weight:700;color:rgba(18,18,37,.78);}
+.s-num{width:24px;height:24px;background:var(--violet);border-radius:8px;color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.btn-restart{width:100%;background:linear-gradient(135deg,var(--violet),var(--violet-dark));color:#fff;border:none;border-radius:999px;padding:15px;font-family:inherit;font-size:14px;font-weight:900;cursor:pointer;transition:transform .15s,box-shadow .2s;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 16px 32px rgba(62,53,175,.28);}
+.btn-restart:hover{transform:translateY(-2px);}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(5,5,6,.72);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;backdrop-filter:blur(8px);}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-box{background:#fff;border-radius:28px;width:520px;max-width:95vw;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;transform:scale(.94);transition:transform .25s;box-shadow:0 40px 120px rgba(0,0,0,.30);}
+.modal-overlay.open .modal-box{transform:scale(1);}
+.modal-header{display:flex;align-items:center;gap:14px;padding:20px 24px;border-bottom:1px solid rgba(18,18,37,.08);}
+.modal-icon-wrap{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.modal-title{font-size:18px;font-weight:900;color:var(--ink);letter-spacing:-.03em;}
+.modal-price{font-size:13px;color:var(--orange);font-weight:800;}
+.modal-close{margin-left:auto;background:rgba(18,18,37,.06);border:none;font-size:20px;color:var(--muted);cursor:pointer;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.modal-body{padding:22px 24px;overflow-y:auto;}
+.modal-preview{font-size:52px;text-align:center;margin-bottom:16px;}
+.modal-desc{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:18px;font-weight:600;}
+.modal-features-title{font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);margin-bottom:10px;}
+.modal-features{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.modal-features li{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink);font-weight:700;}
+.mf-dot{width:18px;height:18px;border-radius:5px;background:var(--success);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.mf-dot svg{width:10px;height:10px;}
+.modal-cta{width:100%;border:none;border-radius:999px;padding:14px;font-family:inherit;font-size:14px;font-weight:900;cursor:pointer;color:#fff;}
+
+/* Bonus CSS */
+.bonus-row-cot{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(34,160,107,.08);border:1px solid rgba(34,160,107,.2);border-radius:16px;margin:10px 0 4px;}
+.bonus-row-cot-text{flex:1;font-size:13px;font-weight:800;color:#11784C;}
+.bonus-row-cot-price{font-size:13px;font-weight:900;color:var(--success);}
+
+/* Responsive */
+@media(max-width:980px){
+  .nav-links{display:none;}
+  .hero{padding-top:42px;}
+  .hero-grid,.conversion-block,.price-layout{grid-template-columns:1fr;}
+  .hero-card{min-height:500px;}
+  .benefits,.modules,.proof-cloud,.proof-bubbles{grid-template-columns:1fr;}
+  .trust-strip{grid-template-columns:1fr 1fr;}
+  .steps{grid-template-columns:1fr;}
+  .atencion-inner{grid-template-columns:1fr;gap:40px;}
+  .aten-features{grid-template-columns:1fr;}
+}
+@media(max-width:640px){
+  .sticky-mobile{display:flex;}
+  body{padding-bottom:82px;}
+  h1{font-size:44px;}
+  .hero-copy{font-size:16px;}
+  .hero-actions .btn{width:100%;}
+  .hero-card{min-height:520px;border-radius:30px;padding:12px;}
+  .dashboard{grid-template-columns:1fr;}
+  .task,.route-card{grid-column:span 1;}
+  .floating{width:calc(100% - 36px);right:18px;bottom:20px;}
+  .trust-strip{grid-template-columns:1fr;}
+  section{padding:54px 0;}
+  .conversion-block,.final-card{border-radius:32px;padding:28px;}
+  .price strong{font-size:48px;}
+  .final-card{padding:36px 24px;}
+  .success-card{margin:16px;padding:32px 20px;}
+  .checkout-wrap{padding:24px 16px;}
+  .s1-grid{grid-template-columns:1fr;}
+  .s1-left{padding:72px 20px 24px!important;}
+  .s1-right{padding:28px 20px 36px!important;}
+  .af-row{grid-template-columns:1fr;}
+  .footer-top{grid-template-columns:1fr;}
+  .footer-bottom{flex-direction:column;gap:8px;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<!-- STEPS BAR -->
+<div class="steps-bar hidden" id="stepsBar">
+  <div class="step-item" id="si1"><div class="step-num">1</div>Tus datos y plan</div>
+  <div class="step-item" id="si2"><div class="step-num">2</div>Pago</div>
+  <div class="step-item" id="si3"><div class="step-num">3</div>Listo</div>
+</div>
+
+<!-- ═══════════════════ STEP 0: LANDING ═══════════════════ -->
+<div id="step0" class="screen active">
+<div class="page">
+
+  <!-- NAV -->
+  <header class="nav">
+    <div class="container nav-inner">
+      <a class="brand" onclick="document.getElementById('top').scrollIntoView({behavior:'smooth'})">
+        Persat <span class="brand-accent">GO</span>
+      </a>
+      <nav class="nav-links">
+        <a onclick="document.getElementById('beneficios').scrollIntoView({behavior:'smooth'})">Beneficios</a>
+        <a onclick="document.getElementById('precio').scrollIntoView({behavior:'smooth'})">Precio</a>
+        <a onclick="document.getElementById('modulos').scrollIntoView({behavior:'smooth'})">Módulos</a>
+        <a onclick="document.getElementById('faq-anchor').scrollIntoView({behavior:'smooth'})">FAQ</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="btn btn-secondary" onclick="document.getElementById('atencion-anchor').scrollIntoView({behavior:'smooth'})">Hablar con un asesor</button>
+        <button class="btn btn-primary" onclick="activarCotizacion()">Probar gratis</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow"><span class="pulse"></span> 15 días gratis · activación guiada</div>
+          <h1>Digitalizá tu operación.<br><span class="accent">Activá Persat GO y empezá.</span></h1>
+          <p class="hero-copy">Centralizá técnicos, logística, inspecciones y visitas en una sola plataforma simple, visual y lista para usar desde el primer día.</p>
+          <div class="hero-actions">
+            <button class="btn btn-primary" onclick="activarCotizacion()">Empezar ahora →</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">Ver demo rápida</button>
+          </div>
+          <div class="microtrust">
+            <span><b class="check">✓</b> Sin contrato de permanencia</span>
+            <span><b class="check">✓</b> Primer cobro al día 16</span>
+            <span><b class="check">✓</b> Pago seguro</span>
+          </div>
+          <div class="app-proof">
+            <div class="app-proof-copy">
+              <span class="phone-icon">▯</span>
+              <div>
+                <strong>Disponible para equipos Android</strong>
+                <small>Tu equipo descarga la app y trabaja desde el celular en cada visita.</small>
+              </div>
+            </div>
+            <div class="play-badge">
+              <span class="play-triangle"></span>
+              <div><span>Disponible en</span><b>Google Play</b></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-card" id="demo">
+          <div class="app-window">
+            <div class="window-top">
+              <div class="dots"><i></i><i></i><i></i></div>
+              <span class="status-pill"><span class="pulse"></span> Operación en vivo</span>
+            </div>
+            <div class="dashboard">
+              <div class="metric"><strong>24</strong><span>visitas activas</span></div>
+              <div class="metric"><strong>92%</strong><span>cumplimiento diario</span></div>
+              <div class="task">
+                <div class="avatar-row">
+                  <div class="avatar">JG</div>
+                  <div><strong>Juan García</strong><br><span>Zona Norte · En ruta</span></div>
+                </div>
+                <span class="status-pill">check-in OK</span>
+              </div>
+              <div class="route-card">
+                <strong>Ruta inteligente del día</strong><br>
+                <span>8 visitas · 6 completas · 2 pendientes</span>
+                <div class="route-map"></div>
+              </div>
+            </div>
+            <div class="floating">
+              <div class="floating-top">
+                <strong>Reporte listo automáticamente</strong>
+                <span class="status-pill">IA</span>
+              </div>
+              <p>Persat resumió visitas, formularios y pendientes para que tomes decisiones sin trabajo manual.</p>
+              <div class="progress"><div class="bar"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container trust-strip">
+        <div class="trust-title">Confianza operativa desde el primer día</div>
+        <div class="trust-item"><span class="check">✓</span><div>+500 empresas<small>ya usan Persat</small></div></div>
+        <div class="trust-item"><span class="check">✓</span><div>48 hs<small>activación guiada</small></div></div>
+        <div class="trust-item"><span class="check">✓</span><div>USD 99/mes<small>plan simple</small></div></div>
+      </div>
+    </section>
+
+    <!-- BENEFICIOS -->
+    <section id="beneficios">
+      <div class="container">
+        <div class="section-head">
+          <h2>Más control operativo. <span class="violet">Todo en un solo lugar.</span></h2>
+          <p>Persat GO convierte el seguimiento operativo en una experiencia simple: tu equipo sabe qué hacer, vos sabés qué está pasando.</p>
+        </div>
+        <div class="benefits">
+          <article class="benefit-card">
+            <div class="icon">⌁</div>
+            <h3>Ordená la operación diaria</h3>
+            <p>Asigná visitas, tareas y órdenes de trabajo sin depender de planillas, chats dispersos o seguimiento manual.</p>
+            <div class="benefit-proof"><span class="check">✓</span> Coordinación más simple y centralizada</div>
+          </article>
+          <article class="benefit-card">
+            <div class="icon">◉</div>
+            <h3>Vé todo en tiempo real</h3>
+            <p>Conocé el estado de cada técnico, vendedor, inspector o entrega desde una vista clara y accionable.</p>
+            <div class="benefit-proof"><span class="check">✓</span> Seguimiento claro en tiempo real</div>
+          </article>
+          <article class="benefit-card">
+            <div class="icon">▣</div>
+            <h3>Decidí con datos, no con intuición</h3>
+            <p>Reportes automáticos, formularios digitales y trazabilidad para entender qué pasó y qué falta resolver.</p>
+            <div class="benefit-proof"><span class="check">✓</span> Información lista para actuar</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONVERSION BLOCK -->
+    <section>
+      <div class="container conversion-block">
+        <div class="conversion-copy">
+          <h2>Activá tu operación digital en minutos.</h2>
+          <p>Suscribite por USD 99 mensuales para hasta 4 usuarios. Ingresás tu tarjeta hoy y el primer cobro se realiza recién a partir del día 16.</p>
+          <button class="btn btn-primary" onclick="activarCotizacion()">Activar prueba gratis</button>
+        </div>
+        <div class="steps">
+          <div class="step"><div class="step-number">1</div><h3>Creás tu cuenta</h3><p>Ingresás tus datos y activás la prueba con tu tarjeta de forma segura.</p></div>
+          <div class="step"><div class="step-number">2</div><h3>Configurás tu operación</h3><p>Definís equipo, vertical y módulos con una guía simple.</p></div>
+          <div class="step"><div class="step-number">3</div><h3>Activás el equipo</h3><p>En 48 horas podés tener tu operación funcionando.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRECIO + COTIZADOR -->
+    <section id="precio">
+      <div class="container">
+        <div class="section-head">
+          <h2>Un plan claro. <span class="accent">Sin sorpresas.</span></h2>
+          <p>La decisión de compra tiene que ser fácil: precio visible, beneficios concretos y posibilidad de sumar módulos cuando lo necesites.</p>
+        </div>
+        <div class="price-layout" id="cotizador-anchor">
+          <article class="price-card">
+            <h3>Plan GO</h3>
+            <p style="color:var(--muted);font-weight:700;line-height:1.5;margin-top:8px;">Para empresas que necesitan ordenar equipos en campo sin una implementación pesada.</p>
+            <div class="price"><strong>USD 99</strong><span>/mes</span></div>
+            <div class="microtrust" style="margin-top:0;">
+              <span><b class="check">✓</b> Primer cobro desde el día 16</span>
+              <span><b class="check">✓</b> Hasta 4 usuarios incluidos</span>
+            </div>
+            <!-- Bonus Check Me -->
+            <div class="bonus-row-cot">
+              <span class="bonus-row-cot-text">✦ Check Me x1 incluido en tu plan</span>
+              <span class="bonus-row-cot-price">GRATIS</span>
+            </div>
+            
+            <ul class="list">
+              <li><span class="check">✓</span> Acceso a los 6 módulos principales</li>
+              <li><span class="check">✓</span> Formularios digitales y órdenes de trabajo</li>
+              <li><span class="check">✓</span> Activación guiada en 48 hs</li>
+              <li><span class="check">✓</span> Rastreo incluido por 90 días</li>
+              <li><span class="check">✓</span> Cancelación simple, sin permanencia</li>
+            </ul>
+            <button class="btn btn-primary" style="width:100%" onclick="activarCotizacion()">Empezar con este plan</button>
+          </article>
+
+          <aside class="quote-card">
+            <h3>Personalizá tu cotización</h3>
+            <p>El plan base ya está incluido. Sumá usuarios o módulos solo si los necesitás.</p>
+
+            <!-- Cotizador dinámico -->
+            <div class="calculator-row" id="cot-usuarios">
+              <div><strong>Usuario adicional</strong><small>U$S 25 por usuario / mes</small></div>
+              <div class="qty">
+                <button type="button" onclick="cotQty('usuarios',25,-1)">−</button>
+                <b id="cot-qty-usuarios">0</b>
+                <button type="button" onclick="cotQty('usuarios',25,1)">+</button>
+              </div>
+            </div>
+            <div class="calculator-row" id="cot-checkme">
+              <div><strong>Check Me</strong><small>Verificación geolocalizada · U$S 10/mes</small></div>
+              <div class="qty">
+                <button type="button" onclick="cotQty('checkme',10,-1)">−</button>
+                <b id="cot-qty-checkme">0</b>
+                <button type="button" onclick="cotQty('checkme',10,1)">+</button>
+              </div>
+            </div>
+            <div class="calculator-row" onclick="cotToggle(this,'pia',80)" style="cursor:pointer;">
+              <div><strong>PIA</strong><small>Analista IA para datos operativos · U$S 80/mes</small></div>
+              <div class="qty" onclick="event.stopPropagation()">
+                <button type="button" onclick="cotToggle(document.getElementById('cot-pia-row'),'pia',80)">+</button>
+              </div>
+            </div>
+            <div class="calculator-row" onclick="cotToggle(this,'portal',50)" style="cursor:pointer;">
+              <div><strong>Portal de Clientes</strong><small>U$S 50/mes</small></div>
+              <div class="qty" onclick="event.stopPropagation()">
+                <button type="button" onclick="cotToggle(document.getElementById('cot-portal-row'),'portal',50)">+</button>
+              </div>
+            </div>
+            <div class="calculator-row" onclick="cotToggle(this,'tablero',24)" style="cursor:pointer;">
+              <div><strong>Tablero Op. Técnicos</strong><small>U$S 24/mes</small></div>
+              <div class="qty" onclick="event.stopPropagation()">
+                <button type="button" onclick="cotToggle(document.getElementById('cot-tablero-row'),'tablero',24)">+</button>
+              </div>
+            </div>
+
+            <div class="total-box">
+              <div>
+                <span>Total mensual estimado</span><br>
+                <strong id="cot-total-new">USD 99</strong>
+              </div>
+              <button class="btn btn-primary" onclick="activarCotizacion()">Continuar →</button>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- MÓDULOS -->
+    <section id="modulos" class="modules-section">
+      <div class="container">
+        <div class="section-head">
+          <h2>Los módulos que tu operación necesita para trabajar de forma más simple y conectada.</h2>
+          <p>Mostrados como beneficios operativos, no como funcionalidades sueltas.</p>
+        </div>
+        <div class="modules">
+          <article class="module-card"><div class="module-top"><span class="module-dot"></span><h3>Clientes</h3></div><p>Información centralizada y actualizada para operar sin pérdida de contexto.</p></article>
+          <article class="module-card"><div class="module-top"><span class="module-dot"></span><h3>Rastreo</h3></div><p>Ubicación y seguimiento de equipos o flota en tiempo real.</p></article>
+          <article class="module-card"><div class="module-top"><span class="module-dot"></span><h3>Entregas</h3></div><p>Rutas, estados y confirmaciones sin perseguir novedades manualmente.</p></article>
+          <article class="module-card"><div class="module-top"><span class="module-dot"></span><h3>Formularios</h3></div><p>Datos, fotos y firmas desde el celular, listos para reportar.</p></article>
+          <article class="module-card"><div class="module-top"><span class="module-dot"></span><h3>Órdenes</h3></div><p>Asignación, avance y cierre de tareas con trazabilidad completa.</p></article>
+          <article class="module-card"><div class="module-top"><span class="module-dot"></span><h3>IA operativa</h3></div><p>Reportes y análisis para decidir más rápido con menos trabajo manual.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROOF -->
+    <section>
+      <div class="container">
+        <div class="proof-cloud">
+          <div class="proof-main">
+            <h3>Empresas en campo ya trabajan con Persat.</h3>
+            <p>Resultados concretos en empresas de logística, técnicos, distribución e inspecciones.</p>
+            <div class="proof-tags">
+              <span>Logística</span><span>Técnicos</span><span>Distribución</span><span>Inspecciones</span><span>Ventas en campo</span>
+            </div>
+          </div>
+          <div class="proof-bubbles">
+            <article class="proof-bubble"><strong>+500</strong><p>empresas digitalizan su operación con Persat.</p><small>Adopción real</small></article>
+            <article class="proof-bubble"><strong>48 hs</strong><p>para activar una configuración inicial guiada.</p><small>Puesta en marcha</small></article>
+            <article class="proof-bubble"><strong>1 app</strong><p>para registrar visitas, formularios, órdenes y estados.</p><small>Trabajo en campo</small></article>
+            <article class="proof-bubble"><strong>24/7</strong><p>información disponible para supervisar la operación.</p><small>Visibilidad operativa</small></article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ATENCIÓN PERSONALIZADA -->
+    <div class="atencion-section" id="atencion-anchor">
+      <div class="container atencion-inner">
+        <div class="aten-left">
+          <div class="aten-title">¿Tienes más de 21 usuarios?</div>
+          <p class="aten-desc">Conoce nuestra solución para grandes empresas que necesitan tanto digitalizar como hacer el seguimiento y control de un gran volumen de operaciones.<br/><br/>Habla con nuestros asesores para recibir una cotización personalizada.</p>
+          <div class="aten-features">
+            <div class="aten-feat"><div class="aten-feat-icon">🤖</div><div><div class="aten-feat-title">IA y Agentes</div><div class="aten-feat-sub">Funcionalidades <strong>exclusivas</strong> de IA y Agentes.</div></div></div>
+            <div class="aten-feat"><div class="aten-feat-icon">👤</div><div><div class="aten-feat-title">Onboarding Personalizado</div><div class="aten-feat-sub">Implementación <strong>guiada</strong> personalizada.</div></div></div>
+            <div class="aten-feat"><div class="aten-feat-icon">⚡</div><div><div class="aten-feat-title">Soporte Dedicado</div><div class="aten-feat-sub">Equipos de <strong>soporte</strong> dedicado 24/7</div></div></div>
+            <div class="aten-feat"><div class="aten-feat-icon">🤝</div><div><div class="aten-feat-title">Cotización a Medida</div><div class="aten-feat-sub">Solución <strong>personalizada</strong> para tu empresa</div></div></div>
+          </div>
+          <button class="btn-aten" onclick="document.getElementById('af-nombre') && document.getElementById('af-nombre').focus()">Hablar con un asesor 💬</button>
+        </div>
+
+        <div>
+          <div class="aten-form-card" id="atencionForm">
+            <div class="aten-form-title">Dejanos tus datos</div>
+            <!-- HubSpot Form Real -->
+            <div class="hs-form-frame" data-region="na1" data-form-id="f5013b20-bb94-44c7-a4b1-e1fae1bf8b6b" data-portal-id="51196368"></div>
+            <!-- Debug panel UTK -->
+            <div id="utk-debug" style="margin-top:16px;background:#0D0D0D;border-radius:10px;padding:14px 16px;font-size:12px;font-family:monospace;">
+              <div style="color:#888;margin-bottom:6px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;">🔍 Debug — hubspotutk</div>
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <span style="color:#6B7280;">Cookie:</span>
+                <span id="utk-value" style="color:#22C55E;font-weight:700;word-break:break-all;">cargando...</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap;">
+                <span style="color:#6B7280;">Botpress var:</span>
+                <span id="utk-bp-status" style="color:#F26419;font-weight:700;">pendiente</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <section class="faq-section" id="faq-anchor">
+      <div class="container faq-inner">
+        <div class="faq-header">
+          <div class="faq-title">Todo lo que necesitás saber antes de empezar.</div>
+          <p class="faq-sub">Información clara para que puedas activar Persat GO con confianza desde el primer momento.</p>
+        </div>
+        <div class="faq-list">
+          <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿Puedo cancelar cuando quiera? <span class="faq-icon">+</span></div><div class="faq-a">Sí, no hay contratos de permanencia. Puedes darte de baja cuando quieras directamente desde tu panel de autogestión, sin costo ni trámite adicional.</div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿Qué pasa si necesito más usuarios? <span class="faq-icon">+</span></div><div class="faq-a">El Plan GO incluye hasta 4 usuarios. Si tu equipo creció, podés agregar usuarios adicionales por U$S 25/mes por persona desde el cotizador antes de pagar, o desde tu panel una vez activo.</div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿Es muy complejo de configurar? <span class="faq-icon">+</span></div><div class="faq-a">No. Persat GO fue diseñado para configurarse sin asistencia técnica. Una vez que confirmás el pago, un especialista te acompaña en una charla de 45 minutos para dejar todo listo. La activación se completa en 48 horas hábiles.</div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿Cómo funcionan los pagos? <span class="faq-icon">+</span></div><div class="faq-a">Los pagos son mensuales automáticos en USD. Podés pagar con PayPal (para toda LATAM) o con MercadoPago (para Argentina, con soporte de cuotas). Los primeros 15 días son gratis — el primer cobro ocurre recién al día 16.</div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿El rastreo satelital tiene costos adicionales? <span class="faq-icon">+</span></div><div class="faq-a">El rastreo básico está incluido en el Plan GO sin costo por 90 días. Luego podés incorporar el módulo Check Me para rastreo avanzado y verificación de presencia por U$S 10/mes.</div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿Qué soporte técnico incluye? <span class="faq-icon">+</span></div><div class="faq-a">El Plan GO incluye soporte reactivo por email y chat. Para cuentas de más de 21 usuarios ofrecemos soporte dedicado 24/7 con un ejecutivo asignado. Podés solicitar una propuesta personalizada desde el formulario de contacto.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section class="final-cta">
+      <div class="container final-card">
+        <h2>Tu operación ya puede funcionar mejor.</h2>
+        <p>Empezá hoy con Persat GO y convertí el seguimiento de campo en una experiencia simple, visible y medible.</p>
+        <button class="btn btn-primary" onclick="activarCotizacion()">Crear cuenta gratis</button>
+        <div class="microtrust" style="justify-content:center;color:rgba(255,255,255,.72);margin-top:20px;">
+          <span><b class="check">✓</b> 15 días gratis</span>
+          <span><b class="check">✓</b> Sin permanencia</span>
+          <span><b class="check">✓</b> Activación guiada</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <div class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <div>
+          <div class="footer-brand-logo">Persat <span>GO</span></div>
+          <p class="footer-brand-desc">La plataforma líder para gestión y coordinación de equipos en terreno con tecnología de Inteligencia Artificial.</p>
+        </div>
+        <div><div class="footer-col-title">Producto</div><div class="footer-links"><a>Funcionalidades</a><a>Precios</a><a>Casos de éxito</a><a>Integraciones</a></div></div>
+        <div><div class="footer-col-title">Empresa</div><div class="footer-links"><a>Sobre nosotros</a><a>Blog</a><a>Carreras</a><a>Contacto</a></div></div>
+        <div><div class="footer-col-title">Legal</div><div class="footer-links"><a>Términos y condiciones</a><a>Política de privacidad</a><a>Política de cookies</a></div></div>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-copy">© 2026 Persat IA. Todos los derechos reservados.</div>
+        <div class="footer-copy">soporte@persat.com</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+</div><!-- /step0 -->
+
+<!-- STICKY MOBILE -->
+<div class="sticky-mobile">
+  <strong>USD 99/mes<br><span style="color:var(--muted);font-weight:600;">15 días gratis</span></strong>
+  <button class="btn btn-primary" onclick="activarCotizacion()">Probar ahora</button>
+</div>
+
+<!-- ═══════════════════ STEP 1: DATOS + PLAN ═══════════════════ -->
+<div id="step1" class="screen">
+  <div class="s1-left">
+    <div class="s1-eyebrow">Persat GO — Self Serve</div>
+    <h1 class="s1-form-title">Tus<br/><span>datos</span></h1>
+    <p class="s1-form-sub">Completá tu información para continuar. No necesitás tarjeta todavía.</p>
+    <div class="s1-grid">
+      <div class="s1-field"><label>Nombre *</label><input type="text" placeholder="Carolina"/></div>
+      <div class="s1-field"><label>Apellido *</label><input type="text" placeholder="Coronel"/></div>
+      <div class="s1-field full"><label>Email corporativo *</label><input type="email" placeholder="nombre@empresa.com"/></div>
+      <div class="s1-field"><label>Teléfono</label><input type="tel" placeholder="+54 9..."/></div>
+      <div class="s1-field"><label>Personal en calle</label><input type="number" placeholder="Ej: 8" min="1"/></div>
+      <div class="s1-field full">
+        <label>Vertical / Industria *</label>
+        <select><option value="">Seleccioná tu industria</option><option>Servicios técnicos / Mantenimiento</option><option>Logística y distribución</option><option>Seguros</option><option>Telecomunicaciones</option><option>Utilities / Energía</option><option>Salud domiciliaria</option><option>Construcción e ingeniería</option><option>Otra</option></select>
+      </div>
+    </div>
+    <button class="btn-s1-continue" onclick="goToStep(2)">
+      Continuar al pago →
+    </button>
+    <button class="btn-s1-home" onclick="restart()">← Volver a la página principal</button>
+    <button class="s1-scroll-hint" onclick="document.querySelector('.s1-right').scrollIntoView({behavior:'smooth'})">
+      Ver tu cotización ↓
+    </button>
+  </div>
+
+  <div class="s1-right">
+    <div class="s1-logo">PERSAT <span>GO</span></div>
+    <div class="s1-calc-title">Tu cotización</div>
+    <div id="s1-summary-items"></div>
+    <div class="s1-total-row">
+      <span class="s1-total-label">Total / mes</span>
+      <span class="s1-total-val" id="s1-total">USD 99</span>
+    </div>
+    <div class="s1-badges">
+      <div class="s1-badge">🟢 15 días gratis · sin compromiso</div>
+      <div class="s1-badge">🔒 Pago seguro vía PayPal o MercadoPago</div>
+    </div>
+    <button class="s1-keep-shopping" onclick="seguiComprando()">← Seguí comprando</button>
+  </div>
+</div>
+
+<!-- ═══════════════════ STEP 2: PAGO ═══════════════════ -->
+<div id="step2" class="screen">
+  <div class="checkout-wrap">
+    <div class="back-link" onclick="goToStep(1)">← Volver</div>
+    <div class="back-link" onclick="restart()" style="margin-bottom:16px;">🏠 Volver a la página principal</div>
+    <div class="trial-banner">
+      <div class="trial-banner-icon">🎯</div>
+      <div class="trial-banner-text"><strong>15 días de prueba gratuita</strong><span>El primer cobro ocurre al día 16. Podés cancelar en cualquier momento.</span></div>
+    </div>
+    <div class="checkout-card">
+      <div class="checkout-header">Detalle de tu suscripción</div>
+      <div id="checkout-lines"><div class="order-line"><span class="name">Plan GO</span><span class="price">USD 99/mes</span></div></div>
+      <div class="order-total"><span>Total mensual</span><span class="price" id="checkout-total">USD 99</span></div>
+    </div>
+    <div class="checkout-card">
+      <div class="checkout-header">Método de pago</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6;font-weight:600;">Seleccioná tu método. No se realizará ningún cobro durante los primeros 15 días.</p>
+      <button class="paypal-btn" onclick="initPayment('paypal')"><span style="font-weight:900;color:#003087">Pay</span><span style="color:#009CDE;font-weight:900">Pal</span>&nbsp;— Pagar con PayPal</button>
+      <button class="mp-btn" onclick="initPayment('mp')">🇦🇷 &nbsp;Pagar con MercadoPago</button>
+      <div style="text-align:center;font-size:12px;color:var(--muted);margin-top:8px;font-weight:600;">🔒 Datos protegidos · SSL encriptado</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ STEP REDIRECT ═══════════════════ -->
+<div id="stepRedirect" class="screen">
+  <div class="redirect-wrap">
+    <div class="redirect-card">
+      <div id="rPhase1">
+        <div class="redirect-gateway-logo" id="rGatewayLogo"></div>
+        <div class="redirect-spinner"><svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20" fill="none" stroke-width="4" stroke="var(--orange)" stroke-linecap="round" stroke-dasharray="100 28"/></svg></div>
+        <div class="redirect-title" id="rTitle1">Redirigiendo...</div>
+        <div class="redirect-sub">No cerrés esta ventana. Estamos procesando tu pago de forma segura.</div>
+        <div class="redirect-secure">🔒 Conexión encriptada SSL</div>
+      </div>
+      <div id="rPhase2" style="display:none;">
+        <div class="redirect-check"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="25" fill="var(--success)"/><path d="M14 26l8 8 16-16" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+        <div class="redirect-title confirmed">✓ Pago confirmado</div>
+        <div class="redirect-sub" id="rSub2">Tu pago fue aprobado.</div>
+        <div class="redirect-progress-bar"><div class="redirect-progress-fill" id="rProgressFill"></div></div>
+        <div class="redirect-sub" style="font-size:12px;margin-top:8px;">Redirigiendo a Persat GO...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ STEP 3: LISTO ═══════════════════ -->
+<div id="step3" class="screen">
+  <div class="success-card">
+    <div class="success-icon">✓</div>
+    <h2 class="success-title">¡Suscripción activada!</h2>
+    <p class="success-sub">Tu prueba gratuita de 15 días ya comenzó.<br/>Te enviamos un email con los próximos pasos.</p>
+    <ul class="success-steps">
+      <li><div class="s-num">1</div>Revisá tu correo — te enviamos el acceso</li>
+      <li><div class="s-num">2</div>Agendá tu charla de onboarding de 45 min</li>
+      <li><div class="s-num">3</div>Activá tu equipo en Persat</li>
+      <li><div class="s-num">4</div>Al día 16 se activa la suscripción paga</li>
+    </ul>
+    <button class="btn-restart" onclick="restart()">← Volver al principio</button>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal-box" id="modalBox">
+    <div class="modal-header">
+      <div class="modal-icon-wrap" id="modalIcon"></div>
+      <div><div class="modal-title" id="modalTitle"></div><div class="modal-price" id="modalPrice"></div></div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-preview" id="modalPreview"></div>
+      <p class="modal-desc" id="modalDesc"></p>
+      <div class="modal-features-title">¿Qué incluye?</div>
+      <ul class="modal-features" id="modalFeatures"></ul>
+      <button class="modal-cta" id="modalCta"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// LÓGICA OPERATIVA — preservada íntegra
+// ══════════════════════════════════════════
+let cotTotal=99,cartTotal=99;
+const cotAddons={},cartAddons={};
+const addonLabels={checkme:'Check Me',pia:'PIA',usuarios:'Usuario',agentes:'Agentes IA',portal:'Portal de Clientes',tablero:'Tablero Op. Técnicos'};
+const cotQtyState={checkme:{qty:0,unit:10},usuarios:{qty:0,unit:25}};
+const cartQtyState={checkme:{qty:1,unit:10},usuarios:{qty:1,unit:25}};
+
+const modalData={checkme:{icon:'📍',iconBg:'#EEF2FF',title:'Check Me',price:'+ U$S 10 / mes por unidad',preview:'📍',desc:'Verifica en tiempo real que tu equipo de campo está donde tiene que estar. Check-in y check-out geolocalizado desde el celular.',features:['Check-in y check-out geolocalizado','Mapa en tiempo real con posición de cada agente','Historial de presencia por usuario y por día','Alertas si alguien no hizo el check-in esperado','Integración con todos los módulos de Persat'],key:'checkme',price_num:10},pia:{icon:'🤖',iconBg:'#FFF7ED',title:'PIA',price:'+ U$S 80 / mes',preview:'🤖',desc:'PIA lee los formularios y documentos que completa tu equipo en campo y los convierte en datos estructurados y reportes automáticos.',features:['Lectura automática de formularios en campo','Extracción de datos de fotos, PDFs y documentos','Generación de reportes automáticos','Reduce errores y tiempo de procesamiento hasta 80%','Integración con todos los módulos'],key:'pia',price_num:80},usuarios:{icon:'👥',iconBg:'#F0FDF4',title:'Usuario',price:'+ U$S 25 / mes por usuario',preview:'👥',desc:'El Plan GO incluye hasta 4 usuarios. Podés agregar usuarios adicionales de a uno.',features:['Cada usuario accede a los 6 módulos completos','Gestión de roles y permisos','Sin límite de usuarios adicionales','Se pueden agregar o quitar en cualquier momento','2 = U$S 50, 3 = U$S 75, etc.'],key:'usuarios',price_num:25}};
+
+function openModal(key){const d=modalData[key];if(!d)return;document.getElementById('modalIcon').textContent=d.icon;document.getElementById('modalIcon').style.background=d.iconBg;document.getElementById('modalTitle').textContent=d.title;document.getElementById('modalPrice').textContent=d.price;document.getElementById('modalPreview').textContent=d.preview;document.getElementById('modalDesc').textContent=d.desc;const ul=document.getElementById('modalFeatures');ul.innerHTML=d.features.map(f=>`<li><div class="mf-dot"><svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>${f}</li>`).join('');document.getElementById('modalOverlay').classList.add('open');document.body.style.overflow='hidden';}
+function closeModal(e){if(e&&e.target!==document.getElementById('modalOverlay'))return;document.getElementById('modalOverlay').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+function toggleFaq(el){const item=el.closest('.faq-item');const isOpen=item.classList.contains('open');document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));if(!isOpen)item.classList.add('open');}
+
+// s1 (step 1 right col) — read-only summary
+let s1Total=99;const s1Addons={};const s1QtyState={usuarios:{qty:1,unit:25},checkme:{qty:1,unit:10}};
+function s1Toggle(row,key,price){/* no-op */}
+function s1Qty(key,unit,delta){/* no-op */}
+function s1QtyToggle(key,unit){/* no-op */}
+
+function renderS1Total(){
+  document.getElementById('s1-total').textContent='USD '+s1Total;
+  let cl='<div class="order-line"><span class="name">Plan GO</span><span class="price">USD 99/mes</span></div>';
+  cl+='<div class="order-line bonus"><span class="name">✦ Check Me x1 incluido en tu plan</span><span class="price">GRATIS</span></div>';
+  Object.values(s1Addons).forEach(a=>{cl+=`<div class="order-line"><span class="name">${a.label}</span><span class="price">+ USD ${a.price}/mes</span></div>`;});
+  document.getElementById('checkout-lines').innerHTML=cl;
+  document.getElementById('checkout-total').textContent='USD '+s1Total;
+  renderS1Summary();
+}
+
+function renderS1Summary(){
+  let html=`<div class="s1-sum-item"><div><div class="s1-sum-item-name">Plan GO</div><div class="s1-sum-item-sub">1–4 usuarios · 6 módulos · Análisis IA</div></div><div class="s1-sum-item-price">USD 99<span style="font-size:10px;font-weight:400;color:rgba(255,255,255,.4)">/mes</span></div></div>
+  <div class="s1-sum-item" style="border-color:rgba(34,160,107,.4);background:rgba(34,160,107,.07);"><div><div class="s1-sum-item-name" style="color:#4ade80;">✦ Check Me x1 incluido en tu plan</div></div><div style="font-size:14px;font-weight:900;color:#4ade80;">GRATIS</div></div>`;
+  Object.values(s1Addons).forEach(a=>{html+=`<div class="s1-sum-item"><div><div class="s1-sum-item-name">${a.label}</div></div><div class="s1-sum-item-price">+ USD ${a.price}<span style="font-size:10px;font-weight:400;color:rgba(255,255,255,.4)">/mes</span></div></div>`;});
+  const el=document.getElementById('s1-summary-items');if(el)el.innerHTML=html;
+}
+
+function seguiComprando(){
+  goToStep(0);
+  setTimeout(()=>{document.getElementById('cotizador-anchor').scrollIntoView({behavior:'smooth'});},300);
+}
+
+function goToStep(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('stepRedirect').classList.remove('active');
+  document.getElementById('step'+n).classList.add('active');
+  const bar=document.getElementById('stepsBar');
+  if(n===0){bar.classList.add('hidden');}
+  else{bar.classList.remove('hidden');['si1','si2','si3'].forEach((id,i)=>{const el=document.getElementById(id);el.classList.remove('active','done');if(i+1<n)el.classList.add('done');else if(i+1===n)el.classList.add('active');});}
+  requestAnimationFrame(()=>{requestAnimationFrame(()=>{window.scrollTo({top:0,left:0,behavior:'instant'});document.documentElement.scrollTop=0;document.body.scrollTop=0;});});
+}
+
+function initPayment(gateway){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const rScreen=document.getElementById('stepRedirect');rScreen.classList.add('active');
+  document.getElementById('stepsBar').classList.remove('hidden');
+  ['si1','si2','si3'].forEach((id,i)=>{const el=document.getElementById(id);el.classList.remove('active','done');if(i<1)el.classList.add('done');else if(i===1)el.classList.add('active');});
+  window.scrollTo({top:0,behavior:'smooth'});
+  const isPaypal=gateway==='paypal';
+  document.getElementById('rGatewayLogo').textContent=isPaypal?'🟡':'🔵';
+  document.getElementById('rTitle1').textContent=isPaypal?'Redirigiendo a PayPal...':'Redirigiendo a MercadoPago...';
+  document.getElementById('rSub2').textContent=isPaypal?'Tu pago con PayPal fue aprobado.':'Tu pago con MercadoPago fue aprobado.';
+  document.getElementById('rPhase1').style.display='block';document.getElementById('rPhase2').style.display='none';
+  setTimeout(()=>{document.getElementById('rPhase1').style.display='none';document.getElementById('rPhase2').style.display='block';setTimeout(()=>{document.getElementById('rProgressFill').style.width='100%';},80);setTimeout(()=>{document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));rScreen.classList.remove('active');document.getElementById('step3').classList.add('active');['si1','si2','si3'].forEach((id,i)=>{const el=document.getElementById(id);el.classList.remove('active','done');if(i<2)el.classList.add('done');else el.classList.add('active');});window.scrollTo({top:0,behavior:'smooth'});},1700);},1800);
+}
+
+// Cotizador landing — usa qty de la nueva UI
+function cotToggle(row,key,price){
+  if(typeof row === 'string') return; // guard
+  if(cotAddons[key]){delete cotAddons[key];cotTotal-=price;}else{cotAddons[key]={label:addonLabels[key],price};cotTotal+=price;}
+  renderCotTotal();
+}
+
+function cotQty(key,unit,delta){
+  const s=cotQtyState[key];
+  const newQty=Math.max(0,s.qty+delta);
+  if(s.qty>0&&cotAddons[key])cotTotal-=cotAddons[key].price;
+  s.qty=newQty;
+  const el=document.getElementById('cot-qty-'+key);
+  if(el)el.textContent=newQty;
+  if(newQty>0){const np=newQty*unit;cotAddons[key]={label:addonLabels[key]+(newQty>1?` x${newQty}`:''),price:np};cotTotal+=np;}
+  else{delete cotAddons[key];}
+  renderCotTotal();
+}
+
+function cotQtyToggle(key,unit){
+  const s=cotQtyState[key];
+  if(cotAddons[key]){cotTotal-=cotAddons[key].price;delete cotAddons[key];s.qty=0;}
+  else{s.qty=1;const price=unit;cotAddons[key]={label:addonLabels[key],price};cotTotal+=price;}
+  const el=document.getElementById('cot-qty-'+key);if(el)el.textContent=s.qty;
+  renderCotTotal();
+}
+
+function renderCotTotal(){
+  const el=document.getElementById('cot-total-new');
+  if(el)el.textContent='USD '+cotTotal;
+}
+
+function renderCot(){renderCotTotal();}
+
+function activarCotizacion(){
+  s1Total=99;Object.keys(s1Addons).forEach(k=>delete s1Addons[k]);
+  Object.entries(cotAddons).forEach(([key,data])=>{s1Addons[key]={label:data.label,price:data.price};s1Total+=data.price;});
+  renderS1Total();goToStep(1);
+}
+
+function restart(){
+  s1Total=99;Object.keys(s1Addons).forEach(k=>delete s1Addons[k]);
+  renderS1Total();
+  cotTotal=99;Object.keys(cotAddons).forEach(k=>delete cotAddons[k]);
+  cotQtyState.checkme.qty=0;cotQtyState.usuarios.qty=0;
+  const qc=document.getElementById('cot-qty-checkme');if(qc)qc.textContent='0';
+  const qu=document.getElementById('cot-qty-usuarios');if(qu)qu.textContent='0';
+  renderCotTotal();
+  goToStep(0);
+}
+
+// Init
+renderCotTotal();
+renderS1Total();
+</script>
+
+<!-- BOTPRESS WEBCHAT -->
+<script src="https://cdn.botpress.cloud/webchat/v3.6/inject.js"></script>
+<script src="https://files.bpcontent.cloud/2026/05/16/18/20260516182447-E1L7CFIL.js" defer></script>
+
+<script>
+// ══════════════════════════════════════════
+// UTK → BOTPRESS BRIDGE (Optimizado)
+// ══════════════════════════════════════════
+function getCookie(name){const match=document.cookie.match(new RegExp('(^| )'+name+'=([^;]+)'));return match?match[2]:null;}
+function updateDebugPanel(utk){const elVal=document.getElementById('utk-value');if(elVal){elVal.textContent=utk||'⚠ no encontrada';elVal.style.color=utk?'#22C55E':'#F59E0B';}}
+window.botpress.on('webchat:ready',function(){
+  console.log('[UTK Bridge] webchat:ready activado con éxito');
+  async function tryInject(attemptsLeft){
+    const utk=getCookie('hubspotutk');
+    updateDebugPanel(utk);
+    console.log('[UTK Bridge] Cookie hubspotutk detectada en navegador:',utk||'NO ENCONTRADA');
+    if(utk){
+      try{
+        console.log('[UTK Bridge] Enviando actualización de perfil a Botpress...');
+        await window.botpress.updateUser({data:{hubspot_utk:utk}});
+        console.log('[UTK Bridge] ✅ Confirmado: UTK impactada con éxito:',utk);
+        const elStatus=document.getElementById('utk-bp-status');
+        if(elStatus){elStatus.textContent='✅ Sincronizado: '+utk.slice(0,12)+'...';elStatus.style.color='#22C55E';}
+      }catch(err){console.log('[UTK Bridge] Error:',err.message);}
+    }else if(attemptsLeft>0){setTimeout(function(){tryInject(attemptsLeft-1);},1000);}
+  }
+  tryInject(5);
+});
+</script>
+</body>
+</html>
